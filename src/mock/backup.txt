@@ -1,0 +1,213 @@
+import { FloatingBubble, InfiniteScroll, Popup, Stepper } from "antd-mobile";
+import { BsCart2 } from "react-icons/bs";
+import ProductItem from "../components/sale/ProductItem";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CloseCircleOutline, SearchOutline } from "antd-mobile-icons";
+import { useQuery } from "react-query";
+import { getCategory, getProduct } from "../api/sale";
+import { Product } from "../api/type";
+
+const SalePage = () => {
+  const [visible, setVisible] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [cId, setCId] = useState("");
+  const [qty, setQty] = useState<number>(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [hasMore, setHasMore] = useState(true);
+  const navigate = useNavigate();
+
+  // fetch category
+  const {
+    data: dCategory,
+    isLoading: lCategory,
+    isError: eCategory,
+  } = useQuery("sliders", getCategory);
+
+  // fetch product
+  const {
+    data: dProduct,
+    isLoading: lProduct,
+    isError: eProduct,
+  } = useQuery({
+    queryKey: ["products", cId],
+    queryFn: () => getProduct("", "", cId, ""),
+  });
+
+  const loadMore = async () => {
+    if (!dProduct?.next_page_url) {
+      setHasMore(false);
+      return;
+    }
+
+    try {
+      const nextPage = dProduct?.next_page_url.split("page=")[1];
+      const response = await getProduct("", "", cId, nextPage);
+      setHasMore(!!response.next_page_url);
+      dProduct.data = [...dProduct.data, ...response.data]; // Merge new data
+    } catch (error) {
+      console.error("Error loading more products:", error);
+    }
+  };
+
+  if (lProduct || lCategory) return <p></p>;
+  if (eCategory || eProduct) return <p>Error</p>;
+
+  const handleAddToCart = (item: Product) => {
+    setProduct(item);
+    setVisible(true);
+  };
+  const handleReset = () => {
+    setProduct(null);
+    setVisible(false);
+    setQty(1);
+  };
+  const handleSubmitAddToCart = (id: number, qty: number) => {
+    const cart: { id: number; qty: number }[] = JSON.parse(
+      window.localStorage.getItem("cart") || "[]"
+    );
+    const existingItemIndex = cart.findIndex((item) => item.id === id);
+
+    if (existingItemIndex !== -1) {
+      cart[existingItemIndex].qty += qty;
+    } else {
+      cart.push({ id, qty });
+    }
+    window.localStorage.setItem("cart", JSON.stringify(cart));
+    handleReset();
+  };
+
+  return (
+    <div className="p-4">
+      {/* Search area */}
+      <div className="flex bg-white p-2 rounded-lg items-center">
+        <div className="w-[10%]">
+          <SearchOutline fontSize={22} />
+        </div>
+        <input
+          className="text-base w-[83%] border-none outline-none focus:ring-0 focus:outline-none"
+          type="text"
+          placeholder="Search by product..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        {searchInput && (
+          <div
+            onClick={() => setSearchInput("")}
+            className="text-red-500 w-[7%] flex justify-end"
+          >
+            <CloseCircleOutline fontSize={20} />
+          </div>
+        )}
+      </div>
+      {/* Category area */}
+      {lCategory ? (
+        "loading..."
+      ) : (
+        <section className="my-4">
+          <div className="flex w-full overflow-auto scroll-smooth scrollbar-hide">
+            <button
+              onClick={() => setCId("")}
+              className="px-4 py-1 bg-white text-base me-2 rounded-lg"
+            >
+              Clear
+            </button>
+            {dCategory?.map((item) => (
+              <button
+                onClick={() => setCId(item.id.toString())}
+                className={`px-4 py-1 text-base me-2 rounded-lg ${
+                  item.id.toString() === cId ? "bg-primary" : "bg-white"
+                }`}
+                key={item.id}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      {/* Product list area */}
+      {lProduct ? (
+        "loading..."
+      ) : (
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {dProduct?.data.map((item) => (
+            <div key={item.id} onClick={() => handleAddToCart(item)}>
+              <ProductItem item={item} />
+            </div>
+          ))}
+          {/* <InfiniteScroll loadMore={loadMore} hasMore={hasMore} /> */}
+        </div>
+      )}
+      <div className="h-[50px]"></div>
+      <FloatingBubble
+        onClick={() => navigate("/cart")}
+        axis="x"
+        magnetic="x"
+        style={{
+          "--initial-position-bottom": "64px",
+          "--initial-position-right": "24px",
+          "--edge-distance": "24px",
+        }}
+      >
+        <BsCart2 fontSize={22} />
+      </FloatingBubble>
+      <Popup
+        visible={visible}
+        onMaskClick={handleReset}
+        onClose={handleReset}
+        bodyStyle={{
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          minHeight: "30vh",
+          background: "#f3f4f6",
+        }}
+      >
+        <div className="p-4 h-full flex flex-col justify-center items-center">
+          <div className="text-lg font-semibold mb-2">Select Quantity</div>
+          <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
+            <div className="flex">
+              <div className="bg-primary w-16 h-16 me-2 rounded-xl">
+                <img
+                  src={product?.photo.at(0)}
+                  alt="img"
+                  className="w-full h-full object-contain rounded-xl"
+                />
+              </div>
+              <div className=" flex flex-col justify-around items-start">
+                <div className="text-base font-semibold">{product?.name}</div>
+                <div>
+                  <div className="text-base">${product?.sale_price}</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <Stepper
+                defaultValue={1}
+                min={1}
+                value={qty}
+                onChange={(value) => {
+                  setQty(value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
+            <div className="text-base">Total:</div>
+            <div className="text-base">${(product?.sale_price ?? 0) * qty}</div>
+          </div>
+          <div className="absolute bottom-0 px-4 w-full">
+            <button
+              className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
+              onClick={() => handleSubmitAddToCart(product?.id ?? 1, qty)}
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </Popup>
+    </div>
+  );
+};
+
+export default SalePage;

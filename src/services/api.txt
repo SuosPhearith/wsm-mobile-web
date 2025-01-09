@@ -1,0 +1,31 @@
+For todo
+
+#======================= todo =======================#
+export interface TodoInterface {
+  id: number;
+  name: string;
+  description: string;
+  priority: "High" | "Medium" | "Low";
+  status: "Pending" | "In Progress" | "Completed" ;
+  type: "Delivery" | "Drop" | "Sale";
+  latitude: number;
+  longitude: number;
+  assigned_by: string;
+  time_slot: string;
+}
+
+/todo/list?status=""           : list all todo of current user can filter by status
+/todo/:id                      : get detail of todo
+/todo/:id/status                : update status of todo pending -> In Progress -> Completed
+======================================================
+
+#======================= Sale =======================#
+
+/category/list                  : list all category         
+/product/list?category_id=&&key=&&page=1                  : list all product can filter by category and search include pagination
+/user/list                  : list all users include search
+/user/remember              : list all remember users in login user by provide data
+    {
+        authId : 1,
+        userId : 2,
+    }
