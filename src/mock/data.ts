@@ -1,9 +1,11 @@
 import {
   CategoryInterface,
   CustomerInterface,
+  dateInterface,
   PopularItemInterface,
   ProductInterface,
   SlideInterface,
+  TimeSlotInterface,
   TodoInterface,
 } from "./type";
 
@@ -342,4 +344,28 @@ export const customers: CustomerInterface[] = [
       "https://imgs.search.brave.com/H-L3dkZGwV7TR9V_pEy9AdO5-Cb-MqAk9cazft0zUOw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wZWJi/bGVseS5jb20vY2F0/ZWdvcmllcy9jYW5k/bGUvY2FuZGxlLXB1/cnBsZS1sYXZlbmRl/ci5qcGc_d2lkdGg9/NzIwJnF1YWxpdHk9/NzU",
     location: "San Jose",
   },
+];
+
+export const dates: dateInterface[] = [
+  { date: "10-01-2025" },
+  { date: "11-01-2025" },
+  { date: "12-01-2025" },
+  { date: "13-01-2025" },
+  { date: "14-01-2025" },
+  { date: "15-01-2025" },
+  { date: "16-01-2025" },
+  { date: "17-01-2025" },
+  { date: "18-01-2025" },
+  { date: "19-01-2025" },
+  { date: "20-01-2025" },
+  { date: "21-01-2025" },
+  { date: "22-01-2025" },
+  { date: "23-01-2025" },
+  { date: "24-01-2025" },
+];
+
+export const timeSlots: TimeSlotInterface[] = [
+  { time: "Morning (09:00 - 12:00)" },
+  { time: "Afternoon (12:00 - 16:00)" },
+  { time: "Evening (16:00 - 20:00)" },
 ];

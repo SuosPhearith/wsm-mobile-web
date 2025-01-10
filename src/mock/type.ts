@@ -49,5 +49,13 @@ export interface LocationInterface {
   lat: number;
   lng: number;
 }
-// from api
+
+
+export interface dateInterface{
+  date : string
+}
+
+export interface TimeSlotInterface {
+  time : string
+}
 

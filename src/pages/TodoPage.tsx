@@ -1,14 +1,22 @@
-import { SafeArea } from "antd-mobile";
-import List from "../components/todo/List";
-
 const TodoPage = () => {
   return (
-    <div>
-      <div style={{ background: "#ace0ff" }}>
-        <SafeArea position="top" />
+    <div className="flex justify-center items-center h-full bg-gradient-to-r from-blue-500 to-slate-300">
+      <div className="text-center">
+        <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 animate-pulse">
+          Coming Soon 😉
+        </h1>
+        <p className="text-lg sm:text-xl text-white opacity-80">
+          We're working hard to bring you something amazing!
+        </p>
       </div>
-      <List />
     </div>
+
+    // <div>
+    //   <div style={{ background: "#ace0ff" }}>
+    //     <SafeArea position="top" />
+    //   </div>
+    //   <List />
+    // </div>
   );
 };
 

@@ -1,4 +1,5 @@
 import {
+  Badge,
   DotLoading,
   FloatingBubble,
   InfiniteScroll,
@@ -7,7 +8,7 @@ import {
 } from "antd-mobile";
 import { BsCart2 } from "react-icons/bs";
 import ProductItem from "../components/sale/ProductItem";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CloseCircleOutline, SearchOutline } from "antd-mobile-icons";
 import { useInfiniteQuery, useQuery } from "react-query";
@@ -51,26 +52,6 @@ const SalePage = () => {
     }
   );
 
-  // Handle search
-  const handleSearch = () => {
-    setSearchKey(searchInput);
-  };
-
-  // Handle reset search
-  const handleResetSearch = () => {
-    setSearchKey("");
-    setSearchInput("");
-  };
-
-  // Handle input search
-  const handleInputSearch = (value: string) => {
-    setSearchInput(value);
-
-    if (value === "") {
-      setSearchKey("");
-    }
-  };
-
   // Handle add to cart
   const handleAddToCart = (item: Product) => {
     setProduct(item);
@@ -86,7 +67,6 @@ const SalePage = () => {
 
   // Handle submit add to cart
   const handleSubmitAddToCart = (product: Product | null, qty: number) => {
-    
     if (!product) {
       console.error("Product is null!");
       return;
@@ -108,8 +88,64 @@ const SalePage = () => {
     handleReset();
   };
 
+  // Cart badge value
+  const cartBadge = () => {
+    try {
+      const carts = window.localStorage.getItem("cart");
+      const jsonCarts = carts ? JSON.parse(carts) : [];
+      return Array.isArray(jsonCarts) ? jsonCarts.length : 0;
+    } catch (error) {
+      console.error("Failed to parse cart data:", error);
+      return 0;
+    }
+  };
+
+  const searchTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle reset search
+  const handleResetSearch = () => {
+    setSearchKey("");
+    setSearchInput("");
+  };
+
+  // Handle input search
+  const handleInputSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (value === "") {
+      setSearchKey("");
+    }
+  };
+
+  // Wrap handleSearch in useCallback
+  const handleSearch = useCallback(() => {
+    setSearchKey(searchInput);
+  }, [searchInput]);
+
+  // Debounce search function
+  const debouncedSearch = useCallback(() => {
+    if (searchTimer.current) {
+      clearTimeout(searchTimer.current);
+    }
+
+    searchTimer.current = setTimeout(() => {
+      handleSearch();
+    }, 300);
+  }, [handleSearch]);
+
+  // Debounce search logic
+  useEffect(() => {
+    debouncedSearch();
+
+    return () => {
+      if (searchTimer.current) {
+        clearTimeout(searchTimer.current);
+      }
+    };
+  }, [searchInput, debouncedSearch]);
+
   // Loading and error handling
-  if (lCategory || lProduct) return <p></p>;
+  if (lCategory) return <p></p>;
   if (eCategory || eProduct) return <p>Error loading categories...</p>;
 
   return (
@@ -134,12 +170,6 @@ const SalePage = () => {
           value={searchInput}
           onChange={(e) => handleInputSearch(e.target.value)}
         />
-        <div
-          onClick={handleSearch}
-          className="text-white bg-primary p-1 h-full rounded-full flex justify-end"
-        >
-          <SearchOutline fontSize={22} />
-        </div>
       </div>
 
       {/* Category area */}
@@ -148,7 +178,7 @@ const SalePage = () => {
           <button
             onClick={() => setCId("")}
             className={`px-4 py-1 text-base me-2 rounded-lg ${
-              !cId ? "bg-primary text-white" : ""
+              !cId ? "bg-primary text-white" : "bg-white"
             }`}
           >
             All
@@ -169,15 +199,17 @@ const SalePage = () => {
         </div>
       </section>
       {/* Product list area */}
-      <div className="grid grid-cols-2 gap-2 mt-2">
-        {dProduct?.pages
-          .flatMap((page) => page.data)
-          .map((item) => (
-            <div key={item.id} onClick={() => handleAddToCart(item)}>
-              <ProductItem item={item} />
-            </div>
-          ))}
-      </div>
+      {!lProduct && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
+          {dProduct?.pages
+            .flatMap((page) => page.data)
+            .map((item) => (
+              <div key={item.id} onClick={() => handleAddToCart(item)}>
+                <ProductItem item={item} />
+              </div>
+            ))}
+        </div>
+      )}
 
       {isFetchingNextPage && (
         <div className="w-full h-5 flex justify-center items-center">
@@ -194,8 +226,8 @@ const SalePage = () => {
       >
         No more
       </InfiniteScroll>
-
-      <FloatingBubble
+        {
+          cartBadge() !== 0 && <FloatingBubble
         onClick={() => navigate("/cart")}
         axis="x"
         magnetic="x"
@@ -205,8 +237,19 @@ const SalePage = () => {
           "--edge-distance": "24px",
         }}
       >
-        <BsCart2 fontSize={22} />
+        <Badge
+          color="white"
+          content={
+            <>
+              <div className="text-black">{cartBadge().toString()}</div>
+            </>
+          }
+        >
+          <BsCart2 fontSize={22} className="me-1"/>
+        </Badge>
       </FloatingBubble>
+        }
+      
 
       <Popup
         visible={visible}
@@ -215,7 +258,7 @@ const SalePage = () => {
         bodyStyle={{
           borderTopLeftRadius: "8px",
           borderTopRightRadius: "8px",
-          minHeight: "30vh",
+          minHeight: "35vh",
           background: "#f3f4f6",
         }}
       >
@@ -255,10 +298,10 @@ const SalePage = () => {
             <div className="text-base">Total:</div>
             <div className="text-base">${(product?.sale_price ?? 0) * qty}</div>
           </div>
-          <div className="absolute bottom-0 px-4 w-full">
+          <div className="absolute bottom-0 px-4 w-full mb-3">
             <button
               className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
-              onClick={() =>handleSubmitAddToCart(product, qty)}
+              onClick={() => handleSubmitAddToCart(product, qty)}
             >
               Add to Cart
             </button>

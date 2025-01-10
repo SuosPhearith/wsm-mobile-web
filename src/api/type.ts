@@ -52,3 +52,17 @@ export interface PaginatedResponse<T> {
   prev_page_url: string | null;
   to: number;
 }
+
+export interface Customer {
+  id: number;
+  phone_number: string;
+  avatar: string | null;
+  name: string;
+  gender: string | null;
+  birthday: string | null;
+  email: string | null;
+  nationality: string | null;
+  wholesale_id: number;
+  created_at: string;
+  updated_at: string;
+}

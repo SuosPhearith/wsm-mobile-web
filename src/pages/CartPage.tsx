@@ -6,7 +6,9 @@ import { Product } from "../api/type";
 
 const CartPage = () => {
   // Load cart items with quantities from localStorage
-  const [cartItems, setCartItems] = useState<{ product: Product; qty: number }[]>([]);
+  const [cartItems, setCartItems] = useState<
+    { product: Product; qty: number }[]
+  >([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,13 +33,29 @@ const CartPage = () => {
   };
 
   // Filter products from the mock data to display in the cart
-  const displayedCartItems: {product:Product, qty:number}[] = JSON.parse(localStorage.getItem('cart') || '[]');
+  const displayedCartItems: { product: Product; qty: number }[] = JSON.parse(
+    localStorage.getItem("cart") || "[]"
+  );
 
   // Calculate total price
   const totalPrice = displayedCartItems.reduce((total, product) => {
-    const itemInCart = cartItems.find((item) => item.product.id === product.product.id);
+    const itemInCart = cartItems.find(
+      (item) => item.product.id === product.product.id
+    );
     return total + product.product.sale_price * (itemInCart?.qty || 1);
   }, 0);
+
+  // Cart badge value
+  const cartValue = () => {
+    try {
+      const carts = window.localStorage.getItem("cart");
+      const jsonCarts = carts ? JSON.parse(carts) : [];
+      return Array.isArray(jsonCarts) ? jsonCarts.length : 0;
+    } catch (error) {
+      console.error("Failed to parse cart data:", error);
+      return 0;
+    }
+  };
 
   return (
     <>
@@ -52,7 +70,9 @@ const CartPage = () => {
           <div className="text-center text-gray-500">Your cart is empty 😢</div>
         ) : (
           displayedCartItems.map((product) => {
-            const itemInCart = cartItems.find((item) => item.product.id === product.product.id);
+            const itemInCart = cartItems.find(
+              (item) => item.product.id === product.product.id
+            );
             return (
               <CartItem
                 key={product.product.id}
@@ -74,14 +94,25 @@ const CartPage = () => {
         </div>
         <div className="w-full flex gap-4">
           <button
+            disabled={cartValue() === 0}
             onClick={() => navigate("/sale-order")}
-            className="bg-primary p-3 w-1/2 rounded-xl text-lg font-bold text-white"
+            className={`p-3 w-1/2 rounded-xl text-lg font-bold text-white ${
+              cartValue() === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primary hover:bg-primary-dark"
+            }`}
           >
             Sale Order
           </button>
+
           <button
+            disabled={cartValue() === 0}
             onClick={() => navigate("/sale-invoice")}
-            className="bg-primary p-3 w-1/2 rounded-xl text-lg font-bold text-white"
+            className={`p-3 w-1/2 rounded-xl text-lg font-bold text-white ${
+              cartValue() === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primary hover:bg-primary-dark"
+            }`}
           >
             Sale Invoice
           </button>

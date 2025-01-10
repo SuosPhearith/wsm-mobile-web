@@ -1,7 +1,20 @@
 import { Popup } from "antd-mobile";
-import { useState } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useState, useCallback } from "react";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { LocationInterface } from "../../mock/type";
+
+// Debounce function to reduce the frequency of map center updates
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timer: NodeJS.Timeout;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
 interface Props {
   visible: boolean;
@@ -10,9 +23,8 @@ interface Props {
 }
 
 const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
-  // State for selected coordinates
-  const [selectedLat, setSelectedLat] = useState<number | null>(null);
-  const [selectedLng, setSelectedLng] = useState<number | null>(null);
+  const [selectedLat, setSelectedLat] = useState<number>(11.5564); // Default center (Phnom Penh, Cambodia)
+  const [selectedLng, setSelectedLng] = useState<number>(104.9282);
 
   // Load the Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
@@ -22,28 +34,36 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
   // Map container style
   const containerStyle = {
     width: "100%",
-    height: "300px",
+    height: "400px",
   };
 
   // Default center position
   const center = {
-    lat: 11.5564, // Example: Phnom Penh, Cambodia
-    lng: 104.9282,
+    lat: selectedLat,
+    lng: selectedLng,
   };
 
-  // Handle map click to select coordinates
-  const handleMapClick = (e: google.maps.MapMouseEvent) => {
-    setSelectedLat(e.latLng?.lat() ?? null);
-    setSelectedLng(e.latLng?.lng() ?? null);
-  };
+  // Handle map center changes (debounced)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleCenterChanged = useCallback(
+    debounce((map: google.maps.Map) => {
+      const newCenter = map.getCenter();
+      if (newCenter) {
+        setSelectedLat(newCenter.lat());
+        setSelectedLng(newCenter.lng());
+      }
+    }, 600),
+    []
+  );
 
-  // Get current location
+  // Get the current location of the user
   const handleSelectCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setSelectedLat(position.coords.latitude);
-          setSelectedLng(position.coords.longitude);
+          const { latitude, longitude } = position.coords;
+          setSelectedLat(latitude);
+          setSelectedLng(longitude);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -55,27 +75,16 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
     }
   };
 
-  const handleClose = () => {
-    setVisible(false);
-    setSelectedLat(null);
-    setSelectedLng(null);
-  };
-
+  // Confirm the selected location
   const handleConfirm = () => {
-    if (selectedLat && selectedLng) {
-      setLocation({ lat: selectedLat, lng: selectedLng });
-      setVisible(false);
-      setSelectedLat(null)
-      setSelectedLng(null)
-    } else {
-      alert("Please Select location.");
-    }
+    setLocation({ lat: selectedLat, lng: selectedLng });
+    setVisible(false);
   };
 
   return (
     <Popup
       visible={visible}
-      onMaskClick={() => handleClose()}
+      onMaskClick={() => setVisible(false)}
       bodyStyle={{
         borderTopLeftRadius: "8px",
         borderTopRightRadius: "8px",
@@ -83,11 +92,10 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
       }}
     >
       <div className="p-4">
-        {/* Header Section */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold">Select Location</h3>
           <button
-            onClick={() => handleClose()}
+            onClick={() => setVisible(false)}
             className="text-red-500 font-semibold"
           >
             Close
@@ -96,23 +104,24 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
 
         {/* Map Section */}
         {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={
-              selectedLat && selectedLng
-                ? { lat: selectedLat, lng: selectedLng }
-                : center
-            }
-            zoom={12}
-            onClick={handleMapClick}
-            options={{
-              gestureHandling: "greedy",
-            }}
-          >
-            {selectedLat && selectedLng && (
-              <Marker position={{ lat: selectedLat, lng: selectedLng }} />
-            )}
-          </GoogleMap>
+          <div className="relative">
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={center}
+              zoom={15}
+              onLoad={(map) => {
+                map.addListener("center_changed", () => handleCenterChanged(map));
+              }}
+              options={{
+                gestureHandling: "greedy",
+                disableDefaultUI: true,
+              }}
+            />
+            {/* Fixed Pin at the Center */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-full">
+              <img src="/pin.png" alt="Map Pin" className="w-6 h-10" />
+            </div>
+          </div>
         ) : (
           <div>Loading map...</div>
         )}
@@ -120,10 +129,10 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
         {/* Display Selected Coordinates */}
         <div className="bg-gray-100 p-3 rounded-lg mt-4">
           <div className="text-sm">
-            <strong>Latitude:</strong> {selectedLat ?? "Not selected"}
+            <strong>Latitude:</strong> {selectedLat.toFixed(6)}
           </div>
           <div className="text-sm">
-            <strong>Longitude:</strong> {selectedLng ?? "Not selected"}
+            <strong>Longitude:</strong> {selectedLng.toFixed(6)}
           </div>
         </div>
 

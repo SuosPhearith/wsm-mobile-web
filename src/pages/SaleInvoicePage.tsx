@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Divider, NavBar, TextArea } from "antd-mobile";
+import { Divider, Modal, NavBar, TextArea } from "antd-mobile";
 import {
   CloseCircleOutline,
   EditFill,
@@ -8,15 +8,18 @@ import {
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
 import { priceValue } from "../utils/share";
-import { CustomerInterface } from "../mock/type";
-import { Product } from "../api/type";
+import { Customer, Product } from "../api/type";
+import defaultAvatar from "../assets/imgaes/profile2.jpg";
 
 const SaleInvoicePage = () => {
   // Load cart items with quantities from localStorage
-  const [cartItems, setCartItems] = useState<{ product: Product; qty: number }[]>([]);
+  const [cartItems, setCartItems] = useState<
+    { product: Product; qty: number }[]
+  >([]);
   const [note, setNote] = useState("");
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<CustomerInterface | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +30,7 @@ const SaleInvoicePage = () => {
     // Retrieve the selected customer from localStorage with a fallback
     const customerData = window.localStorage.getItem("selectedCustomer");
     if (customerData) {
-      const customer: CustomerInterface = JSON.parse(customerData);
+      const customer: Customer = JSON.parse(customerData);
       setSelectedCustomer(customer);
     } else {
       setSelectedCustomer(null);
@@ -51,6 +54,37 @@ const SaleInvoicePage = () => {
   const clearSelectedCustomer = () => {
     setSelectedCustomer(null);
     window.localStorage.removeItem("selectedCustomer");
+  };
+
+  const handleSaleOrder = () => {
+    // Retrieve selected customer and cart from localStorage
+    const selectedCustomer = window.localStorage.getItem("selectedCustomer");
+    const cart = window.localStorage.getItem("cart");
+
+    // Validate if selectedCustomer and cart are present
+    if (!selectedCustomer || !cart || JSON.parse(cart).length === 0) {
+      Modal.alert({
+        title: "Error",
+        content:
+          "Please select a customer.",
+        confirmText: "OK",
+      });
+      return;
+    }
+
+    // Show confirmation modal
+    Modal.alert({
+      title: "Confirm Order",
+      content: "Are you sure to make this order?",
+      showCloseButton: true,
+      confirmText: "Yes, Confirm",
+      onConfirm: () => {
+        // Clear localStorage and navigate
+        window.localStorage.removeItem("selectedCustomer");
+        window.localStorage.removeItem("cart");
+        navigate("/sale");
+      },
+    });
   };
 
   return (
@@ -82,7 +116,7 @@ const SaleInvoicePage = () => {
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full bg-slate-300 flex justify-center items-center">
                   <img
-                    src={selectedCustomer?.image}
+                    src={selectedCustomer?.avatar || defaultAvatar}
                     alt="image"
                     className="w-full h-full rounded-full"
                   />
@@ -92,10 +126,9 @@ const SaleInvoicePage = () => {
                     <div className="font-semibold">
                       {selectedCustomer?.name}
                     </div>
-                    <div className="ms-2">{selectedCustomer?.phone}</div>
                   </div>
                   <div className="text-primary">
-                    {selectedCustomer?.location}
+                    {selectedCustomer.phone_number}
                   </div>
                 </div>
               </div>
@@ -138,13 +171,17 @@ const SaleInvoicePage = () => {
                   <div className="bg-white flex justify-between rounded-lg my-1">
                     <div>
                       <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
-                      <span className="font-semibold">{product.product.name}</span>{" "}
+                      <span className="font-semibold">
+                        {product.product.name}
+                      </span>{" "}
                       <span className="text-black ms-2">
                         {priceValue(product.product.sale_price)}
                       </span>
                     </div>
                     <div className="text-blue-600">
-                      {priceValue(product.product.sale_price * (itemInCart?.qty ?? 0))}
+                      {priceValue(
+                        product.product.sale_price * (itemInCart?.qty ?? 0)
+                      )}
                     </div>
                   </div>
                 );
@@ -162,7 +199,7 @@ const SaleInvoicePage = () => {
         </div>
         <div className="w-full flex gap-4">
           <button
-            onClick={() => navigate("/sale-order")}
+            onClick={handleSaleOrder}
             className="bg-primary p-3 w-full rounded-xl text-lg font-bold text-white"
           >
             Order

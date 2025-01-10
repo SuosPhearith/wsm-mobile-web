@@ -11,7 +11,6 @@ const Slider = () => {
   const items = data?.sliders.map((slider, index) => (
     <Swiper.Item key={index}>
       <a
-        className="h-[220px]"
         href={slider.route || ""}
         target="_blank"
       >
@@ -30,6 +29,7 @@ const Slider = () => {
         <Swiper
           style={{
             "--border-radius": "8px",
+            "--height" : "200px"
           }}
           defaultIndex={1}
         >

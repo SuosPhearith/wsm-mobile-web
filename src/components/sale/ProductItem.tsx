@@ -11,7 +11,7 @@ const ProductItem = ({ item }: Props) => {
       <img
         src={`${import.meta.env.VITE_APP_ASSET_URL}${item.thumbnail}`}
         alt={item.name}
-        className="w-full h-30 object-cover"
+        className="w-full h-30 object-cover rounded-lg"
       />
 
       {/* Price Badge */}
