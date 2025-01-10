@@ -226,30 +226,29 @@ const SalePage = () => {
       >
         No more
       </InfiniteScroll>
-        {
-          cartBadge() !== 0 && <FloatingBubble
-        onClick={() => navigate("/cart")}
-        axis="x"
-        magnetic="x"
-        style={{
-          "--initial-position-bottom": "64px",
-          "--initial-position-right": "24px",
-          "--edge-distance": "24px",
-        }}
-      >
-        <Badge
-          color="white"
-          content={
-            <>
-              <div className="text-black">{cartBadge().toString()}</div>
-            </>
-          }
+      {cartBadge() !== 0 && (
+        <FloatingBubble
+          onClick={() => navigate("/cart")}
+          axis="x"
+          magnetic="x"
+          style={{
+            "--initial-position-bottom": "64px",
+            "--initial-position-right": "24px",
+            "--edge-distance": "24px",
+          }}
         >
-          <BsCart2 fontSize={22} className="me-1"/>
-        </Badge>
-      </FloatingBubble>
-        }
-      
+          <Badge
+            color="white"
+            content={
+              <>
+                <div className="text-black">{cartBadge().toString()}</div>
+              </>
+            }
+          >
+            <BsCart2 fontSize={22} className="me-1" />
+          </Badge>
+        </FloatingBubble>
+      )}
 
       <Popup
         visible={visible}

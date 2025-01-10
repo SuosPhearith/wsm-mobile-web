@@ -37,21 +37,20 @@ const CustomerPage = () => {
 
   const searchTimer = useRef<NodeJS.Timeout | null>(null);
 
-    // Handle reset search
-    const handleResetSearch = () => {
+  // Handle reset search
+  const handleResetSearch = () => {
+    setSearchKey("");
+    setSearchInput("");
+  };
+
+  // Handle input search
+  const handleInputSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (value === "") {
       setSearchKey("");
-      setSearchInput("");
-    };
-  
-    // Handle input search
-    const handleInputSearch = (value: string) => {
-      setSearchInput(value);
-  
-      if (value === "") {
-        setSearchKey("");
-      }
-    };
-  
+    }
+  };
 
   // Wrap handleSearch in useCallback
   const handleSearch = useCallback(() => {
@@ -108,7 +107,7 @@ const CustomerPage = () => {
             type="text"
             placeholder="Search by phone..."
             value={searchInput}
-            onChange={(e) =>handleInputSearch(e.target.value)}
+            onChange={(e) => handleInputSearch(e.target.value)}
           />
           {searchKey && (
             <div
