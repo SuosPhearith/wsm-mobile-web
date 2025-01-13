@@ -1,19 +1,29 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { DotLoading, InfiniteScroll, NavBar } from "antd-mobile";
+import {
+  DotLoading,
+  Form,
+  InfiniteScroll,
+  Input,
+  NavBar,
+  Popup,
+} from "antd-mobile";
 import { CloseCircleOutline, SearchOutline } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
-import { getCustomer } from "../api/sale";
-import { useInfiniteQuery } from "react-query";
+import { createCustomer, getCustomer } from "../api/sale";
+import { useInfiniteQuery, useMutation } from "react-query";
 import defaultAvatar from "../assets/imgaes/profile2.jpg";
-import { Customer } from "../api/type";
+import { CreateCustomerInterface, Customer } from "../api/type";
+import { FaUserPlus } from "react-icons/fa";
+import Error from "../components/share/Error";
 
 const CustomerPage = () => {
   const navigate = useNavigate();
 
   // State for search input and filtered customers
   const [searchKey, setSearchKey] = useState("");
-
+  const [visible, setVisible] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [form] = Form.useForm<CreateCustomerInterface>();
 
   const {
     data: dCustomer,
@@ -22,6 +32,7 @@ const CustomerPage = () => {
     isFetchingNextPage,
     isLoading: lCustomer,
     isError: eCustomer,
+    refetch,
   } = useInfiniteQuery(
     ["customers", searchKey],
     ({ pageParam = 1 }) => getCustomer(pageParam, "20", searchKey),
@@ -84,14 +95,45 @@ const CustomerPage = () => {
     window.localStorage.setItem("selectedCustomer", JSON.stringify(customer));
     navigate(-1); // Go back to the previous page
   };
+  // Handle create new
+  const { mutate, isLoading } = useMutation({
+    mutationFn: createCustomer,
+    onSuccess: (data) => {
+      setVisible(false);
+      refetch();
+      setCustomer(data)
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+  const handleCreateNew = () => {
+    setVisible(true);
+  };
+
+  const handleCreate = (value: CreateCustomerInterface) => {
+    mutate(value);
+  };
   if (eCustomer) {
-    return <div>error</div>;
+    return <Error />;
   }
 
   return (
     <div>
       <div className="fixed top-0 w-full">
-        <NavBar className="bg-white" onBack={() => navigate(-1)}>
+        <NavBar
+          className="bg-white"
+          onBack={() => navigate(-1)}
+          right={
+            <div className="flex justify-end">
+              <FaUserPlus
+                size={24}
+                className="text-blue-500"
+                onClick={handleCreateNew}
+              />
+            </div>
+          }
+        >
           Select Customer
         </NavBar>
       </div>
@@ -165,6 +207,62 @@ const CustomerPage = () => {
           No more
         </InfiniteScroll>
       </div>
+      <Popup
+        visible={visible}
+        onMaskClick={() => {
+          setVisible(false);
+        }}
+        bodyStyle={{
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          minHeight: "60vh",
+          paddingBottom: "80px", // Add padding to avoid overlap with the fixed button
+        }}
+      >
+        <div className="p-4 h-full flex flex-col justify-center items-center">
+          <div className="text-lg font-semibold mb-2">Create new Customer</div>
+          <Form
+            form={form}
+            name="basic"
+            className="w-full"
+            onFinish={handleCreate}
+          >
+            {/* Name Field */}
+            <Form.Item
+              label="Name"
+              name="name"
+              rules={[{ required: true, message: "Please enter your name!" }]}
+            >
+              <Input placeholder="Enter your name" />
+            </Form.Item>
+
+            {/* Phone Number Field */}
+            <Form.Item
+              label="Phone Number"
+              name="phone_number"
+              rules={[
+                { required: true, message: "Please enter your phone number!" },
+                {
+                  pattern: /^[0-9]{8,12}$/,
+                  message: "Invalid phone number format!",
+                },
+              ]}
+            >
+              <Input placeholder="Enter your phone number" />
+            </Form.Item>
+
+            {/* Fixed Bottom Button */}
+            <div className="fixed bottom-0 left-0 w-full p-4 bg-white border-t">
+              <button
+                type="submit"
+                className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
+              >
+                {isLoading ? '...': 'Create'}
+              </button>
+            </div>
+          </Form>
+        </div>
+      </Popup>
     </div>
   );
 };

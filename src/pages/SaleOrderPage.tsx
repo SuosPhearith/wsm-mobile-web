@@ -61,7 +61,7 @@ const SaleOrderPage = () => {
     const itemInCart = cartItems.find(
       (item) => item.product.id === product.product.id
     );
-    return total + product.product.sale_price * (itemInCart?.qty || 1);
+    return total + product.product.unit_price * (itemInCart?.qty || 1);
   }, 0);
 
   // Clear selected customer
@@ -281,12 +281,12 @@ const SaleOrderPage = () => {
                         {product.product.name}
                       </span>{" "}
                       <span className="text-black ms-2">
-                        {priceValue(product.product.sale_price)}
+                        {priceValue(product.product.unit_price)}
                       </span>
                     </div>
                     <div className="text-blue-600">
                       {priceValue(
-                        product.product.sale_price * (itemInCart?.qty ?? 0)
+                        product.product.unit_price * (itemInCart?.qty ?? 0)
                       )}
                     </div>
                   </div>

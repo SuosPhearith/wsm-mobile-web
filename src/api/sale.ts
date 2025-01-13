@@ -1,5 +1,11 @@
 import { api } from "../services/share";
-import { Category, Customer, PaginatedResponse, Product } from "./type";
+import {
+  Category,
+  CreateCustomerInterface,
+  Customer,
+  PaginatedResponse,
+  Product,
+} from "./type";
 
 export const getCategory = async (): Promise<Category[]> => {
   const response = await api<Category[]>("GET", "/api/mini/product/categories");
@@ -44,6 +50,17 @@ export const getCustomer = async (
   const response = await api<PaginatedResponse<Customer>>(
     "GET",
     `/api/mini/customer?${params.toString()}`
+  );
+  return response.data;
+};
+
+export const createCustomer = async (
+  data: CreateCustomerInterface
+): Promise<Customer> => {
+  const response = await api<Customer>(
+    "POST",
+    `/api/mini/customer`,
+    data
   );
   return response.data;
 };

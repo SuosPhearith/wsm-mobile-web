@@ -42,7 +42,7 @@ const CartPage = () => {
     const itemInCart = cartItems.find(
       (item) => item.product.id === product.product.id
     );
-    return total + product.product.sale_price * (itemInCart?.qty || 1);
+    return total + product.product.unit_price * (itemInCart?.qty || 1);
   }, 0);
 
   // Cart badge value
@@ -151,12 +151,12 @@ const CartItem = ({
         </div>
         <div className="flex flex-col justify-around items-start">
           <div className="text-base font-semibold">{product.name}</div>
-          <div className="text-base">{priceValue(product.sale_price)}</div>
+          <div className="text-base">{priceValue(product.unit_price)}</div>
         </div>
       </div>
       <div className="flex items-end flex-col">
         <div className="flex items-start">
-          <div>{priceValue(product.sale_price * qty)}</div>
+          <div>{priceValue(product.unit_price * qty)}</div>
           <button
             onClick={() => onRemove(product.id)}
             className="text-red-500 hover:text-red-700 font-semibold mb-5 ms-2"

@@ -66,3 +66,17 @@ export interface Customer {
   created_at: string;
   updated_at: string;
 }
+
+export interface CreatedCustomerInterface {
+  id: number;
+  name: string;
+  phone_number: string;
+  wholesale_id: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface CreateCustomerInterface {
+  name: string;
+  phone : string
+}
+

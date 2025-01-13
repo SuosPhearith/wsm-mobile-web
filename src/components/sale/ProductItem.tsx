@@ -16,7 +16,7 @@ const ProductItem = ({ item }: Props) => {
 
       {/* Price Badge */}
       <div className="absolute top-2 right-2 bg-black text-white text-sm font-bold py-1 px-2 rounded-lg">
-        ${item.sale_price}
+        ${item.unit_price}
       </div>
 
       {/* Product Name */}
