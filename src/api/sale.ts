@@ -1,10 +1,13 @@
 import { api } from "../services/share";
 import {
+  Address,
+  BookingDateInterface,
   Category,
   CreateCustomerInterface,
   Customer,
   PaginatedResponse,
   Product,
+  SaleOrderInterface,
 } from "./type";
 
 export const getCategory = async (): Promise<Category[]> => {
@@ -57,10 +60,27 @@ export const getCustomer = async (
 export const createCustomer = async (
   data: CreateCustomerInterface
 ): Promise<Customer> => {
-  const response = await api<Customer>(
-    "POST",
-    `/api/mini/customer`,
-    data
+  const response = await api<Customer>("POST", `/api/mini/customer`, data);
+  return response.data;
+};
+
+export const getDeliveryDateRange = async (): Promise<
+  BookingDateInterface[]
+> => {
+  const response = await api<BookingDateInterface[]>(
+    "GET",
+    `/api/mini/order/delivery-date-ranges`
   );
   return response.data;
 };
+
+export const createSaleOrder = async (data: SaleOrderInterface) => {
+  const response = await api("POST", `/api/mini/order/sale-order`, data);
+  return response.data;
+};
+
+export const createCustomerAddress = async (data: Address) => {
+  const response = await api("POST", `/api/mini/customer/save-address`, data);
+  return response.data;
+};
+

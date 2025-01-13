@@ -8,15 +8,19 @@ import {
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
 import { priceValue } from "../utils/share";
-import {
-  dateInterface,
-  LocationInterface,
-  TimeSlotInterface,
-} from "../mock/type";
+import { LocationInterface } from "../mock/type";
 import CustomerLocationPopup from "../components/sale/CustomerLocationPopup";
-import { Customer, Product } from "../api/type";
+import {
+  BookingDateInterface,
+  Customer,
+  Product,
+  SaleOrderInterface,
+  TimeSlotInterface,
+} from "../api/type";
 import defaultAvatar from "../assets/imgaes/profile2.jpg";
-import { dates, timeSlots } from "../mock/data";
+import { useMutation, useQuery } from "react-query";
+import { createSaleOrder, getDeliveryDateRange } from "../api/sale";
+import Error from "../components/share/Error";
 
 const SaleOrderPage = () => {
   // Load cart items with quantities from localStorage
@@ -28,13 +32,82 @@ const SaleOrderPage = () => {
   const [visible2, setVisible2] = useState<boolean>(false);
   const [visible3, setVisible3] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationInterface>();
-  const [selectedDate, setSelectedDate] = useState<dateInterface | null>();
+  const [selectedDate, setSelectedDate] =
+    useState<BookingDateInterface | null>();
   const [selectedTimeSlot, setSelectedTimeSlot] =
     useState<TimeSlotInterface | null>();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
   const navigate = useNavigate();
+
+  // get getDeliveryDateRange
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["dateRanges"],
+    queryFn: getDeliveryDateRange,
+  });
+
+  // make order
+  const { mutate: mOrder, isLoading: lOrder } = useMutation({
+    mutationFn: createSaleOrder,
+    onSuccess: () => {
+      window.localStorage.removeItem("selectedCustomer");
+      window.localStorage.removeItem("cart");
+      navigate("/sale");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const handleSaleOrder = () => {
+    // Retrieve selected customer and cart from localStorage
+    const selectedCustomer = window.localStorage.getItem("selectedCustomer");
+    const cart = window.localStorage.getItem("cart");
+
+    // Validate if selectedCustomer and cart are present
+    if (
+      !selectedCustomer ||
+      !cart ||
+      JSON.parse(cart).length === 0 ||
+      !selectedTimeSlot ||
+      !selectedDate ||
+      !location
+    ) {
+      Modal.alert({
+        title: "Error",
+        content: "Please select a require fields.",
+        confirmText: "OK",
+      });
+      return;
+    }
+
+    // Show confirmation modal
+    Modal.alert({
+      title: "Confirm Order",
+      content: "Are you sure to make this order?",
+      showCloseButton: true,
+      confirmText: "Yes, Confirm",
+      onConfirm: () => {
+        const cartData: { product: Product; qty: number }[] = JSON.parse(cart);
+        const customer: Customer = JSON.parse(selectedCustomer);
+        const orderData: SaleOrderInterface = {
+          items: cartData.map((item) => ({
+            product_id: item.product.id,
+            qty: item.qty,
+            note: 'Nothing'
+          })),
+          customer_id: customer.id,
+          delivery_date: selectedDate.date,
+          time_slot: selectedTimeSlot.slot,
+          lat: location.lat,
+          lng: location.lng,
+          remark: note,
+        };
+        mOrder(orderData);
+      },
+    });
+  };
 
   useEffect(() => {
     // Retrieve cart items from localStorage
@@ -76,7 +149,7 @@ const SaleOrderPage = () => {
   };
 
   // Handle select data
-  const handleSetDate = (item: dateInterface) => {
+  const handleSetDate = (item: BookingDateInterface) => {
     setSelectedDate(item);
     setVisible2(false);
   };
@@ -86,42 +159,12 @@ const SaleOrderPage = () => {
     setVisible3(false);
   };
 
-  const handleSaleOrder = () => {
-    // Retrieve selected customer and cart from localStorage
-    const selectedCustomer = window.localStorage.getItem("selectedCustomer");
-    const cart = window.localStorage.getItem("cart");
-
-    // Validate if selectedCustomer and cart are present
-    if (
-      !selectedCustomer ||
-      !cart ||
-      JSON.parse(cart).length === 0 ||
-      !selectedTimeSlot ||
-      !selectedDate ||
-      !location
-    ) {
-      Modal.alert({
-        title: "Error",
-        content: "Please select a require fields.",
-        confirmText: "OK",
-      });
-      return;
-    }
-
-    // Show confirmation modal
-    Modal.alert({
-      title: "Confirm Order",
-      content: "Are you sure to make this order?",
-      showCloseButton: true,
-      confirmText: "Yes, Confirm",
-      onConfirm: () => {
-        // Clear localStorage and navigate
-        window.localStorage.removeItem("selectedCustomer");
-        window.localStorage.removeItem("cart");
-        navigate("/sale");
-      },
-    });
-  };
+  if (isLoading) {
+    return <div></div>;
+  }
+  if (isError) {
+    return <Error />;
+  }
 
   return (
     <div className="">
@@ -237,7 +280,7 @@ const SaleOrderPage = () => {
             </div>
           ) : (
             <div className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg">
-              <div className="text-base">{selectedTimeSlot.time}</div>
+              <div className="text-base">{selectedTimeSlot.slot}</div>
               <div>
                 <CloseCircleOutline
                   onClick={() => setSelectedTimeSlot(null)}
@@ -252,7 +295,7 @@ const SaleOrderPage = () => {
             <TextArea
               value={note}
               onChange={(v) => setNote(v)}
-              placeholder="Enter note"
+              placeholder="Enter remark"
               showCount
               maxLength={100}
             />
@@ -308,7 +351,7 @@ const SaleOrderPage = () => {
             onClick={handleSaleOrder}
             className="bg-primary p-3 w-full rounded-xl text-lg font-bold text-white"
           >
-            Order
+            {lOrder ? "..." : "Order"}
           </button>
         </div>
       </div>
@@ -338,7 +381,7 @@ const SaleOrderPage = () => {
           </div>
 
           <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {dates.map((item, index) => (
+            {data?.map((item, index) => (
               <div
                 onClick={() => handleSetDate(item)}
                 key={index}
@@ -371,15 +414,17 @@ const SaleOrderPage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {timeSlots.map((slot, index) => (
-              <div
-                key={index}
-                className="bg-blue-100 p-4 rounded-lg text-center text-lg font-medium cursor-pointer hover:bg-blue-200"
-                onClick={() => handleSetTime(slot)}
-              >
-                {slot.time}
-              </div>
-            ))}
+            {selectedDate?.time_slot
+              .filter((slot) => slot.enabled)
+              .map((slot, index) => (
+                <div
+                  key={index}
+                  className="bg-blue-100 p-4 rounded-lg text-center text-lg font-medium cursor-pointer hover:bg-blue-200"
+                  onClick={() => handleSetTime(slot)}
+                >
+                  {slot.slot}
+                </div>
+              ))}
           </div>
         </div>
       </Popup>

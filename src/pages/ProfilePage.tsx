@@ -18,6 +18,7 @@ const ProfilePage = () => {
 
   // Handle logout
   const handleLogout = () => {
+    alert('called me')
     window.localStorage.clear();
     window.sessionStorage.clear();
     navigate("/login");

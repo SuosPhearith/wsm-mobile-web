@@ -77,6 +77,44 @@ export interface CreatedCustomerInterface {
 }
 export interface CreateCustomerInterface {
   name: string;
-  phone : string
+  phone: string;
 }
 
+export interface TimeSlotInterface {
+  id: number;
+  slot: string;
+  close_hour: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookingDateInterface {
+  date: string;
+  time_slot: TimeSlotInterface[];
+}
+
+export interface SaleOrderItem {
+  product_id: number;
+  qty: number;
+  note?: string;
+}
+
+export interface SaleOrderInterface {
+  items: SaleOrderItem[];
+  customer_id: number;
+  delivery_date: string;
+  time_slot: string;
+  lat: number;
+  lng: number;
+  remark?: string;
+}
+
+export interface Address {
+  lat: number;
+  lng: number;
+  label: "Warehouse" | "Retail Store" | "Other";
+  address_name: string;
+  customer_id: number;
+  note?: string;
+}
