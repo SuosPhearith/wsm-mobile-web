@@ -3,8 +3,7 @@ import PopularItem from "./PopularItem";
 
 const Popular = () => {
   return (
-    <div className="p-3 mb-16">
-      <div className="text-lg font-semibold">#Popular</div>
+    <div className="p-3">
       <section className="mt-2">
         <div className="flex overflow-auto scrollbar-hide">
         {popularItems.map((item) =>(

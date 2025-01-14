@@ -1,6 +1,6 @@
-import  Header  from "../components/home/Header";
-import Popular from "../components/home/Popular";
-import  Slider  from "../components/home/Slider";
+import Header from "../components/home/Header";
+import Slider from "../components/home/Slider";
+import Task from "../components/home/Task";
 
 const HomePage = () => {
   return (
@@ -10,7 +10,9 @@ const HomePage = () => {
       {/* slider */}
       <Slider />
       {/* popular */}
-      <Popular />
+      {/* <Popular /> */}
+      {/* task */}
+      <Task />
     </>
   );
 };

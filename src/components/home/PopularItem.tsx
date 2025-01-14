@@ -7,7 +7,7 @@ interface Props {
 
 const PopularItem: React.FC<Props> = ({ item }) => {
   return (
-    <div className="bg-white rounded-lg p-2 me-2 flex flex-col items-center min-w-[300px]">
+    <div className="bg-white rounded-lg me-2 flex flex-col items-center min-w-[300px]">
       {/* Image */}
       <img
         src={item.image}

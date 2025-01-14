@@ -1,20 +1,13 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useState } from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { LuClipboardList } from "react-icons/lu";
 import { MdEdit, MdLockOutline, MdLogout } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-// Safely retrieve profile from sessionStorage
-const profile = (() => {
-  try {
-    return JSON.parse(window.sessionStorage.getItem("profile") || "null");
-  } catch {
-    return null;
-  }
-})();
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const [profile] = useState(JSON.parse(window.sessionStorage.getItem("profile") || "{}"))
 
   // Handle logout
   const handleLogout = () => {

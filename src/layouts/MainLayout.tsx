@@ -1,34 +1,18 @@
-import { TabBar } from "antd-mobile";
+import { TabBar, PullToRefresh } from "antd-mobile";
 import {
   AddCircleOutline,
-  AppOutline,
   UnorderedListOutline,
   UserOutline,
 } from "antd-mobile-icons";
+import { AiOutlineHome } from "react-icons/ai";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const MainLayout = () => {
   const tabs = [
-    {
-      key: "/",
-      title: "Home",
-      icon: <AppOutline />,
-    },
-    {
-      key: "/todo",
-      title: "Todo",
-      icon: <UnorderedListOutline />,
-    },
-    {
-      key: "/sale",
-      title: "Sale",
-      icon: <AddCircleOutline />,
-    },
-    {
-      key: "/profile",
-      title: "Profile",
-      icon: <UserOutline />,
-    },
+    { key: "/", title: "Home", icon: <AiOutlineHome /> },
+    { key: "/todo", title: "Todo", icon: <UnorderedListOutline /> },
+    { key: "/sale", title: "Sale", icon: <AddCircleOutline /> },
+    { key: "/profile", title: "Profile", icon: <UserOutline /> },
   ];
 
   const navigate = useNavigate();
@@ -38,13 +22,22 @@ const MainLayout = () => {
   const setRouteActive = (value: string) => {
     navigate(value, { replace: true });
   };
-  
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Main Content Section */}
+      {/* Main Content Section with PullToRefresh */}
       <main className="flex-grow bg-gray-100">
-        <Outlet />
+        <PullToRefresh
+          pullingText={<div>Refreshing...</div>}
+          canReleaseText={<div>Refreshing...</div>}
+          refreshingText={<div>Refreshing...</div>}
+          completeText={<div>Refreshing...</div>}
+          onRefresh={async () => {
+            window.location.reload();
+          }}
+        >
+          <Outlet />
+        </PullToRefresh>
       </main>
 
       {/* TabBar Section */}

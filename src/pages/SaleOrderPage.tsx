@@ -137,6 +137,7 @@ const SaleOrderPage = () => {
           time_slot: selectedTimeSlot.slot,
           lat: location.lat,
           lng: location.lng,
+          address_id: location.id || 0,
           remark: note,
         };
         mOrder(orderData);

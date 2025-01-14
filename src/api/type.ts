@@ -107,6 +107,7 @@ export interface SaleOrderInterface {
   time_slot: string;
   lat: number;
   lng: number;
+  address_id : number;
   remark?: string;
 }
 

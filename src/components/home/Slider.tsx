@@ -24,14 +24,13 @@ const Slider = () => {
   ));
   return (
     <div className="p-3">
-      <div className="text-lg font-semibold">#Special for you</div>
       <section className="mt-2">
         <Swiper
           style={{
             "--border-radius": "8px",
             "--height" : "200px"
           }}
-          defaultIndex={1}
+          defaultIndex={4}
         >
           {items}
         </Swiper>

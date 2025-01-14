@@ -1,6 +1,6 @@
 const TodoPage = () => {
   return (
-    <div className="flex justify-center items-center h-full bg-gradient-to-r from-blue-500 to-slate-300">
+    <div className="flex justify-center h-screen items-center bg-gradient-to-r from-blue-500 to-slate-300">
       <div className="text-center">
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 animate-pulse">
           Coming Soon 😉
