@@ -1,4 +1,5 @@
 import { Product } from "../../api/type";
+import { priceValue } from "../../utils/share";
 
 interface Props {
   item: Product;
@@ -16,7 +17,7 @@ const ProductItem = ({ item }: Props) => {
 
       {/* Price Badge */}
       <div className="absolute top-2 right-2 bg-black text-white text-sm font-bold py-1 px-2 rounded-lg">
-        ${item.unit_price}
+        {priceValue(item.unit_price)}
       </div>
 
       {/* Product Name */}

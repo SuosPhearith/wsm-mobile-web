@@ -91,3 +91,8 @@ export const getCustomerAddress = async (id: number): Promise<Address[]> => {
   );
   return response.data;
 };
+
+export const deleteCustomerAddress = async (id: number) => {
+  const response = await api("DELETE", `/api/mini/customer/address/${id}`);
+  return response.data;
+};

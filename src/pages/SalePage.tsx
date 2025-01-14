@@ -14,6 +14,7 @@ import { CloseCircleOutline, SearchOutline } from "antd-mobile-icons";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { getCategory, getProduct } from "../api/sale";
 import { Product } from "../api/type";
+import { priceValue } from "../utils/share";
 
 const SalePage = () => {
   const [visible, setVisible] = useState(false);
@@ -278,7 +279,7 @@ const SalePage = () => {
               <div className=" flex flex-col justify-around items-start">
                 <div className="text-base font-semibold">{product?.name}</div>
                 <div>
-                  <div className="text-base">${product?.unit_price}</div>
+                  <div className="text-base">{priceValue(product?.unit_price)}</div>
                 </div>
               </div>
             </div>
@@ -295,7 +296,7 @@ const SalePage = () => {
           </div>
           <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
             <div className="text-base">Total:</div>
-            <div className="text-base">${(product?.unit_price ?? 0) * qty}</div>
+            <div className="text-base">{priceValue((product?.unit_price ?? 0) * qty)}</div>
           </div>
           <div className="absolute bottom-0 px-4 w-full mb-3">
             <button

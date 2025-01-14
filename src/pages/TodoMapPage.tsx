@@ -18,7 +18,7 @@ const TodoMapPage = () => {
   const [todo, setTodo] = useState<TodoInterface>();
   // Load the Google Maps script
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyB-8483BsCJfJ9mGR9NP7Q6XfdY0yOEt-8",
+    googleMapsApiKey: import.meta.env.VITE_APP_REACT_APP_GOOGLE_MAPS_API_KEY,
   });
 
   const handleOpen = (todo: TodoInterface) => {

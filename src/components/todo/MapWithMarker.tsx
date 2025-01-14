@@ -15,7 +15,7 @@ interface Props {
 const MapWithMarker: React.FC<Props> = ({ latitude, longitude }) => {
   // Load Google Maps
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyB-8483BsCJfJ9mGR9NP7Q6XfdY0yOEt-8", // Use your API key
+    googleMapsApiKey: import.meta.env.VITE_APP_REACT_APP_GOOGLE_MAPS_API_KEY, // Use your API key
   });
 
   if (loadError) return <div>Error loading maps</div>;

@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Divider, Modal, NavBar, Popup, TextArea } from "antd-mobile";
+import {
+  Dialog,
+  Divider,
+  Modal,
+  NavBar,
+  Popup,
+  SwipeAction,
+  TextArea,
+} from "antd-mobile";
 import {
   CloseCircleOutline,
   EditFill,
@@ -21,6 +29,7 @@ import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { useMutation, useQuery } from "react-query";
 import {
   createSaleOrder,
+  deleteCustomerAddress,
   getCustomerAddress,
   getDeliveryDateRange,
 } from "../api/sale";
@@ -56,6 +65,7 @@ const SaleOrderPage = () => {
     data: dAddress,
     isLoading: lAddress,
     isError: eAddress,
+    refetch,
   } = useQuery({
     queryKey: ["addresses", selectedCustomer?.id], // Include customer ID in query key
     queryFn: () => getCustomerAddress(selectedCustomer?.id || 0),
@@ -69,6 +79,16 @@ const SaleOrderPage = () => {
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
       navigate("/sale");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+  // remove address
+  const { mutate: mDeleteAddress, isLoading: lDeleteAddress } = useMutation({
+    mutationFn: (id: number) => deleteCustomerAddress(id),
+    onSuccess: () => {
+      refetch();
     },
     onError: (error) => {
       console.log(error);
@@ -505,47 +525,71 @@ const SaleOrderPage = () => {
           minHeight: "70vh",
         }}
       >
-        <div className="p-4 bg-gray-50 rounded-lg max-h-[55vh] overflow-y-auto">
+        <div className="p-4 rounded-lg max-h-[55vh] overflow-y-auto">
           {!lAddress && (
             <>
               {dAddress?.map((item) => (
-                <div
-                  className="flex items-center w-full"
+                <SwipeAction
+                  className="flex flex-col my-2"
                   key={item.id}
-                  onClick={() => handleSetAddress(item)}
+                  closeOnAction={false}
+                  closeOnTouchOutside={false}
+                  rightActions={[
+                    {
+                      key: "delete",
+                      text: "Remove",
+                      color: "danger",
+                      onClick: async () => {
+                        await Dialog.confirm({
+                          content: "Remove Address",
+                          cancelText: "No",
+                          confirmText: "Remove",
+                          onConfirm: () => {
+                            mDeleteAddress(item.id || 0);
+                          },
+                        });
+                      },
+                    },
+                  ]}
                 >
-                  <div className="bg-white p-4 rounded-lg w-full mt-2 border">
-                    <div className="flex flex-col space-y-2">
-                      <div className="text-base font-semibold text-gray-900">
-                        Label:{" "}
-                        <span className="font-medium text-blue-600">
-                          {item.label}
-                        </span>
-                      </div>
-
-                      {item.note && (
-                        <div className="text-sm text-gray-700 bg-gray-100 p-2 rounded-md">
-                          📝 <strong>Note:</strong> {item.note}
+                  <div
+                    className="flex items-center w-full"
+                    onClick={() => handleSetAddress(item)}
+                  >
+                    <div className="bg-white p-4 rounded-lg w-full flex flex-col border">
+                      <div className="flex flex-col space-y-2">
+                        <div className="text-base font-semibold text-gray-900">
+                          Label:{" "}
+                          <span className="font-medium text-blue-600">
+                            {item.label}
+                          </span>
                         </div>
-                      )}
 
-                      <div className="text-sm text-gray-600">
-                        📍 <strong>Address:</strong> {item.address_name}
-                      </div>
+                        {item.note && (
+                          <div className="text-sm text-gray-700 bg-gray-100 p-2 rounded-md">
+                            📝 <strong>Note:</strong> {item.note}
+                          </div>
+                        )}
 
-                      <div className="text-sm text-gray-500">
-                        🌐 <strong>Coordinates:</strong> lat: {item.lat}, lng:{" "}
-                        {item.lng}
+                        <div className="text-sm text-gray-600">
+                          📍 <strong>Address:</strong> {item.address_name}
+                        </div>
+
+                        <div className="text-sm text-gray-500">
+                          🌐 <strong>Coordinates:</strong> lat: {item.lat}, lng:{" "}
+                          {item.lng}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </SwipeAction>
               ))}
             </>
           )}
         </div>
         <div className="absolute bottom-0 px-4 w-full mb-3">
           <button
+            disabled={lDeleteAddress}
             className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
             onClick={() => handleCreateNewAddress()}
           >
