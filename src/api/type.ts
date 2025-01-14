@@ -111,6 +111,7 @@ export interface SaleOrderInterface {
 }
 
 export interface Address {
+  id?: number;
   lat: number;
   lng: number;
   label: "Warehouse" | "Retail Store" | "Other";

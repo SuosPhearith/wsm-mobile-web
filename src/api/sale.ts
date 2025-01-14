@@ -84,3 +84,10 @@ export const createCustomerAddress = async (data: Address) => {
   return response.data;
 };
 
+export const getCustomerAddress = async (id: number): Promise<Address[]> => {
+  const response = await api<Address[]>(
+    "GET",
+    `/api/mini/customer/${id}/get-address`
+  );
+  return response.data;
+};

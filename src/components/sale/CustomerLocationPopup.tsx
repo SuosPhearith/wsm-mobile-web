@@ -1,10 +1,9 @@
 import { Popup, Radio, Space } from "antd-mobile";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
-import { LocationInterface } from "../../mock/type";
 import { useMutation } from "react-query";
 import { createCustomerAddress } from "../../api/sale";
-import { Address } from "../../api/type";
+import { Address, Customer } from "../../api/type";
 
 // Debounce function to reduce the frequency of map center updates
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,26 +21,27 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
 interface Props {
   visible: boolean;
   setVisible: (value: boolean) => void;
-  setLocation: ({ lat, lng }: LocationInterface) => void;
+  setLocation: ({ lat, lng }: Address) => void;
 }
 
 const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
   const [selectedLat, setSelectedLat] = useState<number>(11.5564); // Default center (Phnom Penh, Cambodia)
   const [selectedLng, setSelectedLng] = useState<number>(104.9282);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [selectedLabel, SetSelectedLabel] = useState<'Warehouse' | "Retail Store" | 'Other'>("Warehouse");
+  const [selectedLabel, SetSelectedLabel] = useState<
+    "Warehouse" | "Retail Store" | "Other"
+  >("Warehouse");
+  const [customer, setCustomer] = useState<Customer>();
   const [note, setNote] = useState("");
 
-  // Create 
-
+  // Create
   const { mutate } = useMutation({
-      mutationFn: createCustomerAddress,
-      onSuccess: () => {
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+    mutationFn: createCustomerAddress,
+    onSuccess: () => {},
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   // Load the Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
@@ -87,6 +87,10 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
     []
   );
 
+  useEffect(() => {
+    setCustomer(JSON.parse(localStorage.getItem("selectedCustomer") || "{}"));
+  }, [visible]);
+
   // Get the current location of the user
   const handleSelectCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -108,17 +112,23 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
 
   // Confirm the selected location
   const handleConfirm = () => {
-    // suosphearith
+    if (!customer?.id) {
+      return;
+    }
     const data: Address = {
       lat: selectedLat,
       lng: selectedLng,
-      address_name: selectedAddress,
+      address_name: selectedAddress || "No Provide",
       label: selectedLabel,
       note: note,
-      customer_id : 1
-    }
-    mutate(data)
-    setLocation({ lat: selectedLat, lng: selectedLng });
+      customer_id: customer?.id,
+    };
+    mutate(data);
+    setLocation(data);
+    setNote("");
+    SetSelectedLabel("Warehouse");
+    setSelectedAddress("");
+    setCustomer(undefined);
     setVisible(false);
   };
 
@@ -176,12 +186,14 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
             <strong className="ms-3">Longitude:</strong>{" "}
             {selectedLng.toFixed(6)}
           </div>
-          <div className="text-sm mb-4">
+          <div className="text-sm mb-4 truncate">
             <strong>Address:</strong> {selectedAddress}
           </div>
           <Radio.Group
             value={selectedLabel}
-            onChange={(val) => SetSelectedLabel(val as 'Warehouse' | "Retail Store" | 'Other')}
+            onChange={(val) =>
+              SetSelectedLabel(val as "Warehouse" | "Retail Store" | "Other")
+            }
           >
             <Space direction="horizontal">
               <Radio

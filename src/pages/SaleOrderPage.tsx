@@ -8,9 +8,9 @@ import {
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
 import { priceValue } from "../utils/share";
-import { LocationInterface } from "../mock/type";
 import CustomerLocationPopup from "../components/sale/CustomerLocationPopup";
 import {
+  Address,
   BookingDateInterface,
   Customer,
   Product,
@@ -19,7 +19,11 @@ import {
 } from "../api/type";
 import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { useMutation, useQuery } from "react-query";
-import { createSaleOrder, getDeliveryDateRange } from "../api/sale";
+import {
+  createSaleOrder,
+  getCustomerAddress,
+  getDeliveryDateRange,
+} from "../api/sale";
 import Error from "../components/share/Error";
 
 const SaleOrderPage = () => {
@@ -31,7 +35,8 @@ const SaleOrderPage = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [visible2, setVisible2] = useState<boolean>(false);
   const [visible3, setVisible3] = useState<boolean>(false);
-  const [location, setLocation] = useState<LocationInterface>();
+  const [visible4, setVisible4] = useState<boolean>(false);
+  const [location, setLocation] = useState<Address>();
   const [selectedDate, setSelectedDate] =
     useState<BookingDateInterface | null>();
   const [selectedTimeSlot, setSelectedTimeSlot] =
@@ -45,6 +50,16 @@ const SaleOrderPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dateRanges"],
     queryFn: getDeliveryDateRange,
+  });
+  // Get Customer Address (only fetch if selectedCustomer is set)
+  const {
+    data: dAddress,
+    isLoading: lAddress,
+    isError: eAddress,
+  } = useQuery({
+    queryKey: ["addresses", selectedCustomer?.id], // Include customer ID in query key
+    queryFn: () => getCustomerAddress(selectedCustomer?.id || 0),
+    enabled: !!selectedCustomer?.id, // Only run when selectedCustomer has a valid ID
   });
 
   // make order
@@ -75,7 +90,7 @@ const SaleOrderPage = () => {
       !location
     ) {
       Modal.alert({
-        title: "Error",
+        title: "Field Require.",
         content: "Please select a require fields.",
         confirmText: "OK",
       });
@@ -95,7 +110,7 @@ const SaleOrderPage = () => {
           items: cartData.map((item) => ({
             product_id: item.product.id,
             qty: item.qty,
-            note: 'Nothing'
+            note: "Nothing",
           })),
           customer_id: customer.id,
           delivery_date: selectedDate.date,
@@ -162,10 +177,35 @@ const SaleOrderPage = () => {
   if (isLoading) {
     return <div></div>;
   }
-  if (isError) {
+  if (isError || eAddress) {
     return <Error />;
   }
 
+  const handleOpenLocation = () => {
+    if (!localStorage.getItem("selectedCustomer")) {
+      Modal.alert({
+        title: "Field Require.",
+        content: "Please select a customer first.",
+        confirmText: "OK",
+      });
+      return;
+    }
+    if (dAddress?.length === 0) {
+      setVisible(true);
+    } else {
+      setVisible4(true);
+    }
+  };
+
+  const handleCreateNewAddress = () => {
+    setVisible4(false);
+    setVisible(true);
+  };
+
+  const handleSetAddress = (item: Address) => {
+    setLocation(item);
+    setVisible4(false);
+  };
   return (
     <div className="">
       <div className="fixed top-0 w-full ">
@@ -222,7 +262,7 @@ const SaleOrderPage = () => {
           )}
           {!location ? (
             <div
-              onClick={() => setVisible(true)}
+              onClick={handleOpenLocation}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
               <div className="text-base">Select Location</div>
@@ -232,9 +272,32 @@ const SaleOrderPage = () => {
             </div>
           ) : (
             <div className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg">
-              <div>
-                <div>lat: {location?.lat}</div>
-                <div>lng: {location?.lng}</div>
+              <div className="flex items-center w-full">
+                <div className="">
+                  <div className="flex flex-col space-y-2">
+                    <div className="text-base font-semibold text-gray-900">
+                      Label:{" "}
+                      <span className="font-medium text-blue-600">
+                        {location.label}
+                      </span>
+                    </div>
+
+                    {location.note && (
+                      <div className="text-sm text-gray-700 bg-gray-100 p-2 rounded-md">
+                        📝 <strong>Note:</strong> {location.note}
+                      </div>
+                    )}
+
+                    <div className="text-sm text-gray-600">
+                      📍 <strong>Address:</strong> {location.address_name}
+                    </div>
+
+                    <div className="text-sm text-gray-500">
+                      🌐 <strong>Coordinates:</strong> lat: {location.lat}, lng:{" "}
+                      {location.lng}
+                    </div>
+                  </div>
+                </div>
               </div>
               <div>
                 <CloseCircleOutline
@@ -317,7 +380,10 @@ const SaleOrderPage = () => {
                   (item) => item.product.id === product.product.id
                 );
                 return (
-                  <div className="bg-white flex justify-between rounded-lg my-1">
+                  <div
+                    className="bg-white flex justify-between rounded-lg my-1"
+                    key={product.product.id}
+                  >
                     <div>
                       <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
                       <span className="font-semibold">
@@ -426,6 +492,65 @@ const SaleOrderPage = () => {
                 </div>
               ))}
           </div>
+        </div>
+      </Popup>
+      <Popup
+        visible={visible4}
+        onMaskClick={() => {
+          setVisible4(false);
+        }}
+        bodyStyle={{
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          minHeight: "70vh",
+        }}
+      >
+        <div className="p-4 bg-gray-50 rounded-lg max-h-[55vh] overflow-y-auto">
+          {!lAddress && (
+            <>
+              {dAddress?.map((item) => (
+                <div
+                  className="flex items-center w-full"
+                  key={item.id}
+                  onClick={() => handleSetAddress(item)}
+                >
+                  <div className="bg-white p-4 rounded-lg w-full mt-2 border">
+                    <div className="flex flex-col space-y-2">
+                      <div className="text-base font-semibold text-gray-900">
+                        Label:{" "}
+                        <span className="font-medium text-blue-600">
+                          {item.label}
+                        </span>
+                      </div>
+
+                      {item.note && (
+                        <div className="text-sm text-gray-700 bg-gray-100 p-2 rounded-md">
+                          📝 <strong>Note:</strong> {item.note}
+                        </div>
+                      )}
+
+                      <div className="text-sm text-gray-600">
+                        📍 <strong>Address:</strong> {item.address_name}
+                      </div>
+
+                      <div className="text-sm text-gray-500">
+                        🌐 <strong>Coordinates:</strong> lat: {item.lat}, lng:{" "}
+                        {item.lng}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+        <div className="absolute bottom-0 px-4 w-full mb-3">
+          <button
+            className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
+            onClick={() => handleCreateNewAddress()}
+          >
+            Create New Address
+          </button>
         </div>
       </Popup>
     </div>
