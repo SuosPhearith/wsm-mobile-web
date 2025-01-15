@@ -13,10 +13,12 @@ import CustomerPage from "./pages/CustomerPage";
 import PrivateRoute from "./components/protect/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
+import AuthCheck from "./components/share/AuthCheck";
 
 function App() {
   return (
     <Router>
+      <AuthCheck />
       <Routes>
         {/* Main Layout */}
         <Route

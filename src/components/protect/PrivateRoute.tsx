@@ -7,7 +7,7 @@ interface Props {
 // Dummy authentication function (replace with your real auth logic)
 const isAuthenticated = () => {
     // get me
-  return !!sessionStorage.getItem("token"); // Example: check if a token exists
+  return !!localStorage.getItem("token"); // Example: check if a token exists
 };
 
 const PrivateRoute = ({ children }: Props) => {

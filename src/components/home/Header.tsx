@@ -7,7 +7,7 @@ import { IoLogOutOutline } from "react-icons/io5";
 const Header = () => {
   const navigate = useNavigate();
   const profile = JSON.parse(
-    window.sessionStorage.getItem("profile") || "null"
+    window.localStorage.getItem("profile") || "null"
   );
 
   // Redirect to login if profile doesn't exist
@@ -19,7 +19,7 @@ const Header = () => {
 
   // Handle logout
   const handleLogout = () => {
-    window.sessionStorage.removeItem("profile");
+    window.localStorage.removeItem("profile");
     navigate("/login", { replace: true });
   };
 

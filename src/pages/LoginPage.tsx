@@ -15,9 +15,9 @@ const LoginPage = () => {
         email: username,
         password,
       });
-      window.sessionStorage.setItem("token", response.data);
+      window.localStorage.setItem("token", response.data);
       const me = await api("GET", "/api/mini/profile");
-      window.sessionStorage.setItem("profile", JSON.stringify(me.data));
+      window.localStorage.setItem("profile", JSON.stringify(me.data));
       navigate("/", { replace: true });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

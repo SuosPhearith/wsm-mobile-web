@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const [profile] = useState(JSON.parse(window.sessionStorage.getItem("profile") || "{}"))
+  const [profile] = useState(JSON.parse(window.localStorage.getItem("profile") || "{}"))
 
   // Handle logout
   const handleLogout = () => {
     alert('called me')
     window.localStorage.clear();
-    window.sessionStorage.clear();
+    window.localStorage.clear();
     navigate("/login");
   };
 

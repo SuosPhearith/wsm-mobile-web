@@ -12,7 +12,7 @@ export const api = async<T> (
 ): Promise<AxiosResponse<T>> => {
   try {
     // Get token from localStorage
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     // Set Authorization header if token exists
     const headers = {
