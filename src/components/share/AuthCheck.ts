@@ -9,9 +9,9 @@ function AuthCheck() {
     const profile = window.localStorage.getItem("profile");
 
     if (!token || !profile) {
-      navigate("login");
+      navigate("/login");
     } else {
-      navigate("");
+      navigate("/");
     }
   }, [navigate]);
 
