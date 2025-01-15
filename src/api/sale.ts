@@ -7,6 +7,7 @@ import {
   Customer,
   PaginatedResponse,
   Product,
+  SaleInvoiceInterface,
   SaleOrderInterface,
 } from "./type";
 
@@ -94,5 +95,10 @@ export const getCustomerAddress = async (id: number): Promise<Address[]> => {
 
 export const deleteCustomerAddress = async (id: number) => {
   const response = await api("DELETE", `/api/mini/customer/address/${id}`);
+  return response.data;
+};
+
+export const createSaleInvoice = async (data: SaleInvoiceInterface) => {
+  const response = await api("POST", `/api/mini/order/sale-invoice`, data);
   return response.data;
 };

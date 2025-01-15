@@ -110,6 +110,11 @@ export interface SaleOrderInterface {
   address_id : number;
   remark?: string;
 }
+export interface SaleInvoiceInterface {
+  items: SaleOrderItem[];
+  customer_id: number;
+  remark?: string;
+}
 
 export interface Address {
   id?: number;

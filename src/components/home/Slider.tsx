@@ -15,7 +15,7 @@ const Slider = () => {
         target="_blank"
       >
         <img
-          src={`${import.meta.env.VITE_APP_API_URL}/${slider.image}`}
+          src={`${import.meta.env.VITE_APP_ASSET_URL}${slider.image}`}
           alt={slider.image}
           className="w-full h-full object-cover"
         />

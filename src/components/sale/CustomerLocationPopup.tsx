@@ -1,9 +1,10 @@
-import { Popup, Radio, Space } from "antd-mobile";
+import { Dialog, Popup, Radio, Space } from "antd-mobile";
 import { useState, useCallback, useEffect } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { useMutation } from "react-query";
 import { createCustomerAddress } from "../../api/sale";
 import { Address, Customer } from "../../api/type";
+import { MdError } from "react-icons/md";
 
 // Debounce function to reduce the frequency of map center updates
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,6 +40,16 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
     mutationFn: createCustomerAddress,
     onSuccess: () => {},
     onError: (error) => {
+      Dialog.alert({
+        content: (
+          <>
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> Something weng wrong.
+            </div>
+          </>
+        ),
+        confirmText: "Close",
+      });
       console.log(error);
     },
   });

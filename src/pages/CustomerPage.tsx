@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
+  Dialog,
   DotLoading,
   Form,
   InfiniteScroll,
@@ -15,6 +16,7 @@ import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { CreateCustomerInterface, Customer } from "../api/type";
 import { FaUserPlus } from "react-icons/fa";
 import Error from "../components/share/Error";
+import { MdError } from "react-icons/md";
 
 const CustomerPage = () => {
   const navigate = useNavigate();
@@ -104,6 +106,16 @@ const CustomerPage = () => {
       setCustomer(data)
     },
     onError: (error) => {
+      Dialog.alert({
+        content: (
+          <>
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> Something weng wrong.
+            </div>
+          </>
+        ),
+        confirmText: "Close",
+      });
       console.log(error);
     },
   });

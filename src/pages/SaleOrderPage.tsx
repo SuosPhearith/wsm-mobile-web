@@ -34,6 +34,7 @@ import {
   getDeliveryDateRange,
 } from "../api/sale";
 import Error from "../components/share/Error";
+import { MdError } from "react-icons/md";
 
 const SaleOrderPage = () => {
   // Load cart items with quantities from localStorage
@@ -81,6 +82,16 @@ const SaleOrderPage = () => {
       navigate("/sale");
     },
     onError: (error) => {
+      Dialog.alert({
+        content: (
+          <>
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> Something weng wrong.
+            </div>
+          </>
+        ),
+        confirmText: "Close",
+      });
       console.log(error);
     },
   });
@@ -91,6 +102,16 @@ const SaleOrderPage = () => {
       refetch();
     },
     onError: (error) => {
+      Dialog.alert({
+        content: (
+          <>
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> Something weng wrong.
+            </div>
+          </>
+        ),
+        confirmText: "Close",
+      });
       console.log(error);
     },
   });

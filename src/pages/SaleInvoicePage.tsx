@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Divider, Modal, NavBar, TextArea } from "antd-mobile";
+import { Dialog, Divider, Modal, NavBar, TextArea } from "antd-mobile";
 import {
   CloseCircleOutline,
   EditFill,
@@ -8,8 +8,11 @@ import {
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
 import { priceValue } from "../utils/share";
-import { Customer, Product } from "../api/type";
+import { Customer, Product, SaleInvoiceInterface } from "../api/type";
 import defaultAvatar from "../assets/imgaes/profile2.jpg";
+import { useMutation } from "react-query";
+import { createSaleInvoice } from "../api/sale";
+import { MdError } from "react-icons/md";
 
 const SaleInvoicePage = () => {
   // Load cart items with quantities from localStorage
@@ -56,7 +59,30 @@ const SaleInvoicePage = () => {
     window.localStorage.removeItem("selectedCustomer");
   };
 
-  const handleSaleOrder = () => {
+  // make order
+  const { mutate: mOrder, isLoading: lOrder } = useMutation({
+    mutationFn: createSaleInvoice,
+    onSuccess: () => {
+      window.localStorage.removeItem("selectedCustomer");
+      window.localStorage.removeItem("cart");
+      navigate("/sale");
+    },
+    onError: (error) => {
+      Dialog.alert({
+        content: (
+          <>
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> Something weng wrong.
+            </div>
+          </>
+        ),
+        confirmText: "Close",
+      });
+      console.log(error);
+    },
+  });
+
+  const handleSaleInvoice = () => {
     // Retrieve selected customer and cart from localStorage
     const selectedCustomer = window.localStorage.getItem("selectedCustomer");
     const cart = window.localStorage.getItem("cart");
@@ -65,8 +91,7 @@ const SaleInvoicePage = () => {
     if (!selectedCustomer || !cart || JSON.parse(cart).length === 0) {
       Modal.alert({
         title: "Error",
-        content:
-          "Please select a customer.",
+        content: "Please select a customer.",
         confirmText: "OK",
       });
       return;
@@ -79,10 +104,18 @@ const SaleInvoicePage = () => {
       showCloseButton: true,
       confirmText: "Yes, Confirm",
       onConfirm: () => {
-        // Clear localStorage and navigate
-        window.localStorage.removeItem("selectedCustomer");
-        window.localStorage.removeItem("cart");
-        navigate("/sale");
+        const cartData: { product: Product; qty: number }[] = JSON.parse(cart);
+        const customer: Customer = JSON.parse(selectedCustomer);
+        const orderData: SaleInvoiceInterface = {
+          items: cartData.map((item) => ({
+            product_id: item.product.id,
+            qty: item.qty,
+            note: "Nothing",
+          })),
+          customer_id: customer.id,
+          remark: note,
+        };
+        mOrder(orderData);
       },
     });
   };
@@ -199,10 +232,10 @@ const SaleInvoicePage = () => {
         </div>
         <div className="w-full flex gap-4">
           <button
-            onClick={handleSaleOrder}
+            onClick={handleSaleInvoice}
             className="bg-primary p-3 w-full rounded-xl text-lg font-bold text-white"
           >
-            Order
+            {lOrder ? "..." : "Order"}
           </button>
         </div>
       </div>
