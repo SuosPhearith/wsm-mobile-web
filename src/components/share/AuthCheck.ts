@@ -10,8 +10,6 @@ function AuthCheck() {
 
     if (!token || !profile) {
       navigate("/login");
-    } else {
-      navigate("/");
     }
   }, [navigate]);
 
