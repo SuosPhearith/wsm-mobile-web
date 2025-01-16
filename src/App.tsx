@@ -14,6 +14,7 @@ import PrivateRoute from "./components/protect/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthCheck from "./components/share/AuthCheck";
+import NotFoundPage from "./pages/NoteFoundPage";
 
 function App() {
   return (
@@ -28,10 +29,10 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<HomePage />} />
-          <Route path="todo" element={<TodoPage />} />
-          <Route path="sale" element={<SalePage />} />
-          <Route path="profile" element={<ProfilePage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/todo" element={<TodoPage />} />
+          <Route path="/sale" element={<SalePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         {/* No Layout */}
@@ -42,19 +43,21 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route path="todo/:id" element={<TodoDetailPage />} />
-          <Route path="todo/map/all" element={<TodoMapPage />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="sale-invoice" element={<SaleInvoicePage />} />
-          <Route path="sale-order" element={<SaleOrderPage />} />
-          <Route path="customer" element={<CustomerPage />} />
+          <Route path="/todo/:id" element={<TodoDetailPage />} />
+          <Route path="/todo/map/all" element={<TodoMapPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/sale-invoice" element={<SaleInvoicePage />} />
+          <Route path="/sale-order" element={<SaleOrderPage />} />
+          <Route path="/customer" element={<CustomerPage />} />
         </Route>
-      </Routes>
-      <Routes>
+
         {/* Public Page */}
         <Route element={<NoLayout />}>
-          <Route path="login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Route>
+
+        {/* Not Found Page */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

@@ -7,6 +7,7 @@ import {
   Popup,
   SwipeAction,
   TextArea,
+  Toast,
 } from "antd-mobile";
 import {
   CloseCircleOutline,
@@ -15,7 +16,7 @@ import {
   UserContactOutline,
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
-import { priceValue } from "../utils/share";
+import { formatDate, priceValue } from "../utils/share";
 import CustomerLocationPopup from "../components/sale/CustomerLocationPopup";
 import {
   Address,
@@ -35,6 +36,7 @@ import {
 } from "../api/sale";
 import Error from "../components/share/Error";
 import { MdError } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
 
 const SaleOrderPage = () => {
   // Load cart items with quantities from localStorage
@@ -80,6 +82,17 @@ const SaleOrderPage = () => {
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
       navigate("/sale");
+      Toast.show({
+        content: (
+          <>
+            <div className="flex justify-center items-start gap-2 text-green-500">
+              <FaCheckCircle size={22} />
+              Order Successfully
+            </div>
+          </>
+        ),
+        duration: 2000,
+      });
     },
     onError: (error) => {
       Dialog.alert({
@@ -495,7 +508,7 @@ const SaleOrderPage = () => {
                 key={index}
                 className="bg-gray-100 p-2 rounded-lg text-center text-lg font-base"
               >
-                {item.date}
+                {formatDate(item.date)}
               </div>
             ))}
           </div>

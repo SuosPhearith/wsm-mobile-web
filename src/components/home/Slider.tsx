@@ -1,19 +1,25 @@
-import { DotLoading, Swiper } from "antd-mobile";
+import { Swiper } from "antd-mobile";
 import { useQuery } from "react-query";
 import { getSlider } from "../../api/home";
 
 const Slider = () => {
   // Fetch Products
   const { data, isLoading, isError } = useQuery("sliders", getSlider);
-  if (isLoading) return <DotLoading color="primary" />;
+
+  if (isLoading)
+    return (
+      <div className="p-3">
+        <div className="animate-pulse">
+          <div className="h-48 bg-gray-300 rounded-lg mb-4"></div>
+        </div>
+      </div>
+    );
+
   if (isError) return <p>Error loading products...</p>;
 
   const items = data?.sliders.map((slider, index) => (
     <Swiper.Item key={index}>
-      <a
-        href={slider.route || ""}
-        target="_blank"
-      >
+      <a href={slider.route || ""} target="_blank">
         <img
           src={`${import.meta.env.VITE_APP_ASSET_URL}${slider.image}`}
           alt={slider.image}
@@ -22,13 +28,14 @@ const Slider = () => {
       </a>
     </Swiper.Item>
   ));
+
   return (
     <div className="p-3">
       <section className="mt-2">
         <Swiper
           style={{
             "--border-radius": "8px",
-            "--height" : "200px"
+            "--height": "200px",
           }}
           defaultIndex={4}
         >

@@ -1,5 +1,6 @@
 import { Product } from "../../api/type";
 import { priceValue } from "../../utils/share";
+import defaultImage from "../../assets/imgaes/logo.png";
 
 interface Props {
   item: Product;
@@ -10,7 +11,11 @@ const ProductItem = ({ item }: Props) => {
     <div key={item.id} className="relative rounded-lg overflow-hidden">
       {/* Product Image */}
       <img
-        src={`${import.meta.env.VITE_APP_ASSET_URL}${item.thumbnail}`}
+        src={
+          item.thumbnail
+            ? `${import.meta.env.VITE_APP_ASSET_URL}${item.thumbnail}`
+            : defaultImage
+        }
         alt={item.name}
         className="w-full h-30 object-cover rounded-lg"
       />

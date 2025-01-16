@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Dialog, Divider, Modal, NavBar, TextArea } from "antd-mobile";
+import {
+  Dialog,
+  Divider,
+  Modal,
+  NavBar,
+  TextArea,
+  Toast,
+} from "antd-mobile";
 import {
   CloseCircleOutline,
   EditFill,
@@ -13,6 +20,7 @@ import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { useMutation } from "react-query";
 import { createSaleInvoice } from "../api/sale";
 import { MdError } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
 
 const SaleInvoicePage = () => {
   // Load cart items with quantities from localStorage
@@ -66,6 +74,17 @@ const SaleInvoicePage = () => {
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
       navigate("/sale");
+      Toast.show({
+        content: (
+          <>
+            <div className="flex justify-center items-start gap-2 text-green-500">
+              <FaCheckCircle size={22} />
+              Order Successfully
+            </div>
+          </>
+        ),
+        duration: 2000,
+      });
     },
     onError: (error) => {
       Dialog.alert({
@@ -201,7 +220,7 @@ const SaleInvoicePage = () => {
                   (item) => item.product.id === product.product.id
                 );
                 return (
-                  <div className="bg-white flex justify-between rounded-lg my-1">
+                  <div className="bg-white flex justify-between rounded-lg my-1" key={product.product.id}>
                     <div>
                       <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
                       <span className="font-semibold">

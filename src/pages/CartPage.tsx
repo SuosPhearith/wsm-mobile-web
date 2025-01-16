@@ -3,6 +3,7 @@ import { Divider, NavBar, Stepper } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Product } from "../api/type";
+import defaultImage from "../assets/imgaes/logo.png";
 
 const CartPage = () => {
   // Load cart items with quantities from localStorage
@@ -142,9 +143,13 @@ const CartItem = ({
   return (
     <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
       <div className="flex">
-        <div className="bg-primary w-16 h-16 me-2 rounded-xl overflow-hidden">
+        <div className="bg-white w-16 h-16 me-2 rounded-xl overflow-hidden">
           <img
-            src={`${import.meta.env.VITE_APP_ASSET_URL}${product.thumbnail}`}
+            src={
+              product.thumbnail
+                ? `${import.meta.env.VITE_APP_ASSET_URL}${product.thumbnail}`
+                : defaultImage
+            }
             alt={product.name}
             className="w-full h-full object-contain rounded-xl"
           />

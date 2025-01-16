@@ -1,0 +1,24 @@
+{
+  "welcome": "Welcome",
+  "description": "This is an example of i18n in React",
+  "layout": {
+    "home": "Home",
+    "todo": "Todo",
+    "sale": "Sale",
+    "profile": "Profile",
+    "refreshing": "Refreshing..."
+  },
+  "otherPage": {
+    "title": "Welcome to the Other Page",
+    "description": "This is a different section."
+  },
+  "sale": {
+    "searchPlaceholder": "Search by product...",
+    "all": "All",
+    "categoriesError": "Error loading categories...",
+    "noMoreProducts": "No more",
+    "selectQuantity": "Select Quantity",
+    "total": "Total:",
+    "addToCart": "Add to Cart"
+  }
+}

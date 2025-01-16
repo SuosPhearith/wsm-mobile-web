@@ -15,8 +15,11 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { getCategory, getProduct } from "../api/sale";
 import { Product } from "../api/type";
 import { priceValue } from "../utils/share";
+import defaultImage from "../assets/imgaes/logo.png";
+import { useTranslation } from "react-i18next";
 
 const SalePage = () => {
+  const { t } = useTranslation(); // Use 'sale' namespace for translations
   const [visible, setVisible] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [cId, setCId] = useState("");
@@ -46,7 +49,7 @@ const SalePage = () => {
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.next_page_url) {
-          return new URL(lastPage.next_page_url).searchParams.get("page");
+          return new URL(lastPage.next_page_url).searchParams.get("sale.page");
         }
         return undefined;
       },
@@ -106,7 +109,7 @@ const SalePage = () => {
   // Handle reset search
   const handleResetSearch = () => {
     setSearchKey("");
-    setSearchInput("");
+    setSearchInput("sale.");
   };
 
   // Handle input search
@@ -147,7 +150,7 @@ const SalePage = () => {
 
   // Loading and error handling
   if (lCategory) return <p></p>;
-  if (eCategory || eProduct) return <p>Error loading categories...</p>;
+  if (eCategory || eProduct) return <p>{t("sale.categoriesError")}</p>;
 
   return (
     <div className="p-4">
@@ -167,7 +170,7 @@ const SalePage = () => {
         <input
           className="text-base w-[90%] border-none outline-none focus:ring-0 focus:outline-none"
           type="text"
-          placeholder="Search by product..."
+          placeholder={t("sale.searchPlaceholder")}
           value={searchInput}
           onChange={(e) => handleInputSearch(e.target.value)}
         />
@@ -178,16 +181,16 @@ const SalePage = () => {
         <div className="flex w-full overflow-auto scroll-smooth scrollbar-hide">
           <button
             onClick={() => setCId("")}
-            className={`px-4 py-1 text-base me-2 rounded-lg ${
+            className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg ${
               !cId ? "bg-primary text-white" : "bg-white"
             }`}
           >
-            All
+            {t("sale.all")}
           </button>
           {dCategory?.map((item) => (
             <button
               onClick={() => setCId(item.id.toString())}
-              className={`px-4 py-1 text-base me-2 rounded-lg ${
+              className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg ${
                 item.id.toString() === cId
                   ? "bg-primary text-white"
                   : "bg-white"
@@ -199,6 +202,7 @@ const SalePage = () => {
           ))}
         </div>
       </section>
+
       {/* Product list area */}
       {!lProduct && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
@@ -225,8 +229,9 @@ const SalePage = () => {
         }}
         hasMore={!!hasNextPage}
       >
-        No more
+        {t("sale.noMoreProducts")}
       </InfiniteScroll>
+
       {cartBadge() !== 0 && (
         <FloatingBubble
           onClick={() => navigate("/cart")}
@@ -241,9 +246,7 @@ const SalePage = () => {
           <Badge
             color="white"
             content={
-              <>
-                <div className="text-black">{cartBadge().toString()}</div>
-              </>
+              <div className="text-black">{cartBadge().toString()}</div>
             }
           >
             <BsCart2 fontSize={22} className="me-1" />
@@ -264,22 +267,26 @@ const SalePage = () => {
       >
         {/* Popup Content */}
         <div className="p-4 h-full flex flex-col justify-center items-center">
-          <div className="text-lg font-semibold mb-2">Select Quantity</div>
+          <div className="text-lg font-semibold mb-2">{t("sale.selectQuantity")}</div>
           <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
             <div className="flex">
               <div className="bg-primary w-16 h-16 me-2 rounded-xl">
                 <img
-                  src={`${import.meta.env.VITE_APP_ASSET_URL}${
+                  src={
                     product?.thumbnail
-                  }`}
+                      ? `${import.meta.env.VITE_APP_ASSET_URL}${product?.thumbnail}`
+                      : defaultImage
+                  }
                   alt="img"
                   className="w-full h-full object-contain rounded-xl"
                 />
               </div>
-              <div className=" flex flex-col justify-around items-start">
+              <div className="flex flex-col justify-around items-start">
                 <div className="text-base font-semibold">{product?.name}</div>
                 <div>
-                  <div className="text-base">{priceValue(product?.unit_price)}</div>
+                  <div className="text-base">
+                    {priceValue(product?.unit_price)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -295,15 +302,17 @@ const SalePage = () => {
             </div>
           </div>
           <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
-            <div className="text-base">Total:</div>
-            <div className="text-base">{priceValue((product?.unit_price ?? 0) * qty)}</div>
+            <div className="text-base">{t("sale.total")}</div>
+            <div className="text-base">
+              {priceValue((product?.unit_price ?? 0) * qty)}
+            </div>
           </div>
           <div className="absolute bottom-0 px-4 w-full mb-3">
             <button
               className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
               onClick={() => handleSubmitAddToCart(product, qty)}
             >
-              Add to Cart
+              {t("sale.addToCart")}
             </button>
           </div>
         </div>

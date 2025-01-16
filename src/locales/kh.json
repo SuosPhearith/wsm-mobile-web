@@ -1,0 +1,24 @@
+{
+  "welcome": "ស្វាគមន៏",
+  "description": "This is an example of i18n in React",
+  "layout": {
+    "home": "ទំព័រដើម",
+    "todo": "តារាងការងារ",
+    "sale": "លក់",
+    "profile": "ប្រវត្តិរូប",
+    "refreshing": "កំពុងធ្វើឱ្យស្រស់..."
+  },
+  "otherPage": {
+    "title": "ស្វាគមន៍ទៅកាន់ទំព័រផ្សេង",
+    "description": "នេះគឺជាផ្នែកផ្សេង។"
+  },
+  "sale": {
+    "searchPlaceholder": "ស្វែងរកតាមផលិតផល...",
+    "all": "ទាំងអស់",
+    "categoriesError": "មានបញ្ហាក្នុងការផ្ទុកប្រភេទ...",
+    "noMoreProducts": "អស់ហើយ",
+    "selectQuantity": "ជ្រើសចំនួន",
+    "total": "សរុប:",
+    "addToCart": "បន្ថែមទៅរទេះ"
+  }
+}

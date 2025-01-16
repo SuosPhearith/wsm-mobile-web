@@ -4,15 +4,18 @@ import {
   UnorderedListOutline,
   UserOutline,
 } from "antd-mobile-icons";
+import { useTranslation } from "react-i18next";
 import { AiOutlineHome } from "react-icons/ai";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const MainLayout = () => {
+  const { t } = useTranslation();
+
   const tabs = [
-    { key: "/", title: "Home", icon: <AiOutlineHome /> },
-    { key: "/todo", title: "Todo", icon: <UnorderedListOutline /> },
-    { key: "/sale", title: "Sale", icon: <AddCircleOutline /> },
-    { key: "/profile", title: "Profile", icon: <UserOutline /> },
+    { key: "/", title: t("layout.home"), icon: <AiOutlineHome /> },
+    { key: "/todo", title: t("layout.todo"), icon: <UnorderedListOutline /> },
+    { key: "/sale", title: t("layout.sale"), icon: <AddCircleOutline /> },
+    { key: "/profile", title: t("layout.profile"), icon: <UserOutline /> },
   ];
 
   const navigate = useNavigate();
@@ -28,10 +31,10 @@ const MainLayout = () => {
       {/* Main Content Section with PullToRefresh */}
       <main className="flex-grow bg-gray-100">
         <PullToRefresh
-          pullingText={<div>Refreshing...</div>}
-          canReleaseText={<div>Refreshing...</div>}
-          refreshingText={<div>Refreshing...</div>}
-          completeText={<div>Refreshing...</div>}
+          pullingText={<div>{t("layout.refreshing")}</div>}
+          canReleaseText={<div>{t("layout.refreshing")}</div>}
+          refreshingText={<div>{t("layout.refreshing")}</div>}
+          completeText={<div>{t("layout.refreshing")}</div>}
           onRefresh={async () => {
             window.location.reload();
           }}
