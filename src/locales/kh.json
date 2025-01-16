@@ -6,7 +6,7 @@
     "todo": "តារាងការងារ",
     "sale": "លក់",
     "profile": "ប្រវត្តិរូប",
-    "refreshing": "កំពុងធ្វើឱ្យស្រស់..."
+    "refreshing": "កំពុងទាញមក..."
   },
   "otherPage": {
     "title": "ស្វាគមន៍ទៅកាន់ទំព័រផ្សេង",
@@ -19,6 +19,102 @@
     "noMoreProducts": "អស់ហើយ",
     "selectQuantity": "ជ្រើសចំនួន",
     "total": "សរុប:",
-    "addToCart": "បន្ថែមទៅរទេះ"
+    "addToCart": "បន្ថែមទៅកន្ត្រក"
+  },
+  "cart": {
+    "cartTitle": "កន្ត្រក",
+    "emptyCart": "កន្ត្រករបស់អ្នកគឺទទេ 😢",
+    "total": "សរុប:",
+    "saleOrder": "ការបញ្ជាទិញ",
+    "saleInvoice": "វិក័យបត្រ"
+  },
+  "saleInvoice": {
+    "saleInvoiceTitle": "វិក័យបត្រ",
+    "customer": "អតិថិជន",
+    "selectCustomer": "ជ្រើសរើសអតិថិជន",
+    "enterNote": "បញ្ចូលកំណត់សម្គាល់",
+    "summary": "សង្ខេប",
+    "emptyCart": "រទេះរបស់អ្នកគឺទទេ 😢",
+    "total": "សរុប:",
+    "order": "បញ្ជាទិញ",
+    "loading": "...",
+    "orderSuccess": "បញ្ជាទិញបានជោគជ័យ",
+    "orderError": "មានកំហុស!",
+    "close": "បិទ",
+    "errorTitle": "កំហុស",
+    "selectCustomerError": "សូមជ្រើសរើសអតិថិជន។",
+    "confirmOrder": "បញ្ជាក់ការបញ្ជាទិញ",
+    "confirmOrderMessage": "តើអ្នកប្រាកដក្នុងការបញ្ជាទិញនេះ?",
+    "confirm": "បាទ/ចាស, បញ្ជាក់",
+    "ok": "យល់ព្រម"
+  },
+  "saleOrder": {
+    "saleOrderTitle": "ការបញ្ជាទិញ",
+    "customer": "អតិថិជន",
+    "selectCustomer": "ជ្រើសរើសអតិថិជន",
+    "selectLocation": "ជ្រើសទីតាំង",
+    "selectDate": "ជ្រើសកាលបរិច្ឆេទ",
+    "selectTimeSlot": "ជ្រើសម៉ោង",
+    "enterRemark": "បញ្ចូលសេចក្ដីសំគាល់",
+    "summary": "សង្ខេប",
+    "emptyCart": "រទេះរបស់អ្នកគឺទទេ 😢",
+    "total": "សរុប:",
+    "order": "បញ្ជាទិញ",
+    "loading": "...",
+    "orderSuccess": "បញ្ជាទិញបានជោគជ័យ",
+    "orderError": "មានកំហុស!",
+    "close": "បិទ",
+    "errorTitle": "កំហុស",
+    "selectFieldsError": "សូមជ្រើសរើសវាលដែលត្រូវការ។",
+    "confirmOrder": "បញ្ជាក់ការបញ្ជាទិញ",
+    "confirmOrderMessage": "តើអ្នកប្រាកដក្នុងការបញ្ជាទិញនេះ?",
+    "confirm": "បាទ/ចាស, បញ្ជាក់",
+    "ok": "យល់ព្រម",
+    "selectCustomerFirst": "សូមជ្រើសរើសអតិថិជនជាមុន។",
+    "filedRequire": "ខ្វះព័ត៌មាន"
+  },
+  "customer": {
+    "selectCustomer": "ជ្រើសរើសអតិថិជន",
+    "searchPlaceholder": "ស្វែងរកតាមលេខទូរស័ព្ទ...",
+    "noMore": "មិនមានអតិថិជនទៀតទេ",
+    "createCustomer": "បង្កើតអតិថិជនថ្មី",
+    "name": "ឈ្មោះ",
+    "phoneNumber": "លេខទូរស័ព្ទ",
+    "nameRequired": "សូមបញ្ចូលឈ្មោះ!",
+    "phoneRequired": "សូមបញ្ចូលលេខទូរស័ព្ទ!",
+    "invalidPhone": "ទម្រង់លេខទូរស័ព្ទមិនត្រឹមត្រូវ!",
+    "enterName": "បញ្ចូលឈ្មោះ",
+    "enterPhone": "បញ្ចូលលេខទូរស័ព្ទ",
+    "create": "បង្កើត",
+    "error": "មានកំហុស!",
+    "close": "បិទ",
+    "phoneExist": "លេខទូរស័ព្ទមានហើយ!"
+  },
+  "profile": {
+    "noProfile": "រកមិនឃើញប្រវត្តិរូប",
+    "profileImageAlt": "រូបភាពប្រវត្តិរូប",
+    "guest": "ភ្ញៀវ",
+    "user": "អ្នកប្រើប្រាស់",
+    "at": "នៅ",
+    "unknownBusiness": "អាជីវកម្មមិនស្គាល់",
+    "editProfile": "កែសម្រួលប្រវត្តិរូប",
+    "saleOrder": "ការបញ្ជាទិញ",
+    "saleInvoice": "វិក័យបត្រ",
+    "changePassword": "ផ្លាស់ប្តូរលេខសម្ងាត់",
+    "logout": "ចាកចេញ"
+  },
+  "task": {
+    "completed": "បានបញ្ចប់",
+    "ongoing": "កំពុងដំណើរការ",
+    "scheduled": "បានកំណត់ពេល",
+    "assigned": "បានចាត់តាំង",
+    "reports": "របាយការណ៍",
+    "orders": "ការបញ្ជាទិញ",
+    "notifications": "ការជូនដំណឹង",
+    "messages": "សារទំនាក់ទំនង"
+  },
+  "todo": {
+    "comingSoon": "នឹងមកដល់ឆាប់ៗ 😉",
+    "workingHard": "យើងកំពុងខិតខំធ្វើឱ្យអ្នក!"
   }
 }

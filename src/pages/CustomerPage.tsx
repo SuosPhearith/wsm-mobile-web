@@ -17,11 +17,12 @@ import { CreateCustomerInterface, Customer } from "../api/type";
 import { FaUserPlus } from "react-icons/fa";
 import Error from "../components/share/Error";
 import { MdError } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 const CustomerPage = () => {
+  const { t } = useTranslation(); // Use "customer" namespace
   const navigate = useNavigate();
 
-  // State for search input and filtered customers
   const [searchKey, setSearchKey] = useState("");
   const [visible, setVisible] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -50,38 +51,31 @@ const CustomerPage = () => {
 
   const searchTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle reset search
   const handleResetSearch = () => {
     setSearchKey("");
     setSearchInput("");
   };
 
-  // Handle input search
   const handleInputSearch = (value: string) => {
     setSearchInput(value);
-
     if (value === "") {
       setSearchKey("");
     }
   };
 
-  // Wrap handleSearch in useCallback
   const handleSearch = useCallback(() => {
     setSearchKey(searchInput);
   }, [searchInput]);
 
-  // Debounce search function
   const debouncedSearch = useCallback(() => {
     if (searchTimer.current) {
       clearTimeout(searchTimer.current);
     }
-
     searchTimer.current = setTimeout(() => {
       handleSearch();
     }, 300);
   }, [handleSearch]);
 
-  // Debounce search logic
   useEffect(() => {
     debouncedSearch();
 
@@ -92,33 +86,42 @@ const CustomerPage = () => {
     };
   }, [searchInput, debouncedSearch]);
 
-  // Set selected customer and navigate back to SaleInvoicePage
   const setCustomer = (customer: Customer) => {
     window.localStorage.setItem("selectedCustomer", JSON.stringify(customer));
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
-  // Handle create new
+
   const { mutate, isLoading } = useMutation({
     mutationFn: createCustomer,
     onSuccess: (data) => {
       setVisible(false);
       refetch();
-      setCustomer(data)
+      setCustomer(data);
     },
-    onError: (error) => {
+    onError: (error: { data: { message: string } }) => {
+      if(error.data.message){
+        Dialog.alert({
+          content: (
+            <div className="text-red-500 flex items-center gap-1">
+              <MdError size={24} /> {t("customer.phoneExist")}
+            </div>
+          ),
+          confirmText: t("customer.close"),
+        });
+        return;
+      }
       Dialog.alert({
         content: (
-          <>
-            <div className="text-red-500 flex items-center gap-1">
-              <MdError size={24} /> Something weng wrong.
-            </div>
-          </>
+          <div className="text-red-500 flex items-center gap-1">
+            <MdError size={24} /> {t("customer.error")}
+          </div>
         ),
-        confirmText: "Close",
+        confirmText: t("customer.close"),
       });
-      console.log(error);
+      console.error(error);
     },
   });
+
   const handleCreateNew = () => {
     setVisible(true);
   };
@@ -126,6 +129,7 @@ const CustomerPage = () => {
   const handleCreate = (value: CreateCustomerInterface) => {
     mutate(value);
   };
+
   if (eCustomer) {
     return <Error />;
   }
@@ -146,12 +150,11 @@ const CustomerPage = () => {
             </div>
           }
         >
-          Select Customer
+          {t("customer.selectCustomer")}
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
       <div className="p-4 pt-1">
-        {/* Search Input */}
         <div className="flex bg-white p-2 rounded-lg items-center">
           <div className="w-[10%]">
             <SearchOutline fontSize={22} />
@@ -159,7 +162,7 @@ const CustomerPage = () => {
           <input
             className="text-base w-[83%] border-none outline-none focus:ring-0 focus:outline-none"
             type="text"
-            placeholder="Search by phone..."
+            placeholder={t("customer.searchPlaceholder")}
             value={searchInput}
             onChange={(e) => handleInputSearch(e.target.value)}
           />
@@ -173,7 +176,6 @@ const CustomerPage = () => {
           )}
         </div>
 
-        {/* Customer List */}
         {!lCustomer && (
           <div>
             {dCustomer?.pages
@@ -184,7 +186,7 @@ const CustomerPage = () => {
                   className="flex p-2 justify-between items-center bg-white mt-2 rounded-xl"
                   onClick={() => setCustomer(item)}
                 >
-                  <div className="flex items-center ">
+                  <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-slate-300 flex justify-center items-center">
                       <img
                         src={item?.avatar || defaultAvatar}
@@ -193,9 +195,7 @@ const CustomerPage = () => {
                       />
                     </div>
                     <div className="flex flex-col justify-center ms-2">
-                      <div className="flex">
-                        <div className="font-semibold">{item.name}</div>
-                      </div>
+                      <div className="font-semibold">{item.name}</div>
                       <div className="text-primary">{item.phone_number}</div>
                     </div>
                   </div>
@@ -209,14 +209,13 @@ const CustomerPage = () => {
           </div>
         )}
 
-        {/* Infinite Scroll */}
         <InfiniteScroll
           loadMore={async () => {
             await fetchNextPage();
           }}
           hasMore={!!hasNextPage}
         >
-          No more
+          {t("customer.noMore")}
         </InfiniteScroll>
       </div>
       <Popup
@@ -228,48 +227,45 @@ const CustomerPage = () => {
           borderTopLeftRadius: "8px",
           borderTopRightRadius: "8px",
           minHeight: "60vh",
-          paddingBottom: "80px", // Add padding to avoid overlap with the fixed button
+          paddingBottom: "80px",
         }}
       >
         <div className="p-4 h-full flex flex-col justify-center items-center">
-          <div className="text-lg font-semibold mb-2">Create new Customer</div>
+          <div className="text-lg font-semibold mb-2">
+            {t("customer.createCustomer")}
+          </div>
           <Form
             form={form}
             name="basic"
             className="w-full"
             onFinish={handleCreate}
           >
-            {/* Name Field */}
             <Form.Item
-              label="Name"
+              label={t("customer.name")}
               name="name"
-              rules={[{ required: true, message: "Please enter your name!" }]}
+              rules={[{ required: true, message: t("customer.nameRequired") }]}
             >
-              <Input placeholder="Enter your name" />
+              <Input placeholder={t("customer.enterName")} />
             </Form.Item>
-
-            {/* Phone Number Field */}
             <Form.Item
-              label="Phone Number"
+              label={t("customer.phoneNumber")}
               name="phone_number"
               rules={[
-                { required: true, message: "Please enter your phone number!" },
+                { required: true, message: t("customer.phoneRequired") },
                 {
-                  pattern: /^[0-9]{8,12}$/,
-                  message: "Invalid phone number format!",
+                  pattern: /^[0-9]{8,15}$/,
+                  message: t("customer.invalidPhone"),
                 },
               ]}
             >
-              <Input placeholder="Enter your phone number" />
+              <Input placeholder={t("customer.enterPhone")} />
             </Form.Item>
-
-            {/* Fixed Bottom Button */}
             <div className="fixed bottom-0 left-0 w-full p-4 bg-white border-t">
               <button
                 type="submit"
                 className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
               >
-                {isLoading ? '...': 'Create'}
+                {isLoading ? "..." : t("customer.create")}
               </button>
             </div>
           </Form>

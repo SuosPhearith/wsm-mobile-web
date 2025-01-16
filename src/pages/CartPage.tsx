@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { Divider, NavBar, Stepper } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { Product } from "../api/type";
 import defaultImage from "../assets/imgaes/logo.png";
 
 const CartPage = () => {
-  // Load cart items with quantities from localStorage
+  const { t } = useTranslation(); // Use "cart" namespace
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
   >([]);
@@ -17,14 +18,12 @@ const CartPage = () => {
     setCartItems(storedCart);
   }, []);
 
-  // Handle removing item from the cart
   const handleRemoveItem = (id: number) => {
     const updatedCart = cartItems.filter((item) => item.product.id !== id);
     setCartItems(updatedCart);
     window.localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Handle quantity change
   const handleQtyChange = (id: number, qty: number) => {
     const updatedCart = cartItems.map((item) =>
       item.product.id === id ? { ...item, qty } : item
@@ -33,12 +32,10 @@ const CartPage = () => {
     window.localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Filter products from the mock data to display in the cart
   const displayedCartItems: { product: Product; qty: number }[] = JSON.parse(
     localStorage.getItem("cart") || "[]"
   );
 
-  // Calculate total price
   const totalPrice = displayedCartItems.reduce((total, product) => {
     const itemInCart = cartItems.find(
       (item) => item.product.id === product.product.id
@@ -46,7 +43,6 @@ const CartPage = () => {
     return total + product.product.unit_price * (itemInCart?.qty || 1);
   }, 0);
 
-  // Cart badge value
   const cartValue = () => {
     try {
       const carts = window.localStorage.getItem("cart");
@@ -62,13 +58,13 @@ const CartPage = () => {
     <>
       <div className="fixed top-0 w-full">
         <NavBar className="bg-white" onBack={() => navigate(-1)}>
-          Cart
+          {t("cart.cartTitle")}
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
       <div className="p-4 bg-gray-100 space-y-4">
         {displayedCartItems.length === 0 ? (
-          <div className="text-center text-gray-500">Your cart is empty 😢</div>
+          <div className="text-center text-gray-500">{t("cart.emptyCart")}</div>
         ) : (
           displayedCartItems.map((product) => {
             const itemInCart = cartItems.find(
@@ -90,7 +86,7 @@ const CartPage = () => {
         <Divider />
         {/* Total Price Section */}
         <div className="flex mt-4  p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-lg font-semibold">Total:</div>
+          <div className="text-lg font-semibold">{t("cart.total")}</div>
           <div className="text-lg font-bold">${totalPrice.toFixed(2)}</div>
         </div>
         <div className="w-full flex gap-4">
@@ -103,7 +99,7 @@ const CartPage = () => {
                 : "bg-primary hover:bg-primary-dark"
             }`}
           >
-            Sale Order
+            {t("cart.saleOrder")}
           </button>
 
           <button
@@ -115,7 +111,7 @@ const CartPage = () => {
                 : "bg-primary hover:bg-primary-dark"
             }`}
           >
-            Sale Invoice
+            {t("cart.saleInvoice")}
           </button>
         </div>
       </div>

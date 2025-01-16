@@ -1,16 +1,28 @@
-import { FaCheckCircle, FaTasks, FaCalendarAlt, FaUser, FaFileAlt, FaShoppingCart, FaBell, FaComments } from 'react-icons/fa';
+import {
+  FaCheckCircle,
+  FaTasks,
+  FaCalendarAlt,
+  FaUser,
+  FaFileAlt,
+  FaShoppingCart,
+  FaBell,
+  FaComments,
+} from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const Task = () => {
-  // Sample task items with icons and names
+  const { t } = useTranslation(); // Use "task" namespace
+
+  // Task items with icons and translated names
   const taskItems = [
-    { id: 1, icon: <FaCheckCircle size={24} className="text-blue-500" />, name: 'Completed' },
-    { id: 2, icon: <FaTasks size={24} className="text-green-500" />, name: 'Ongoing' },
-    { id: 3, icon: <FaCalendarAlt size={24} className="text-red-500" />, name: 'Scheduled' },
-    { id: 4, icon: <FaUser size={24} className="text-purple-500" />, name: 'Assigned' },
-    { id: 5, icon: <FaFileAlt size={24} className="text-yellow-500" />, name: 'Reports' },
-    { id: 6, icon: <FaShoppingCart size={24} className="text-pink-500" />, name: 'Orders' },
-    { id: 7, icon: <FaBell size={24} className="text-teal-500" />, name: 'Notifications' },
-    { id: 8, icon: <FaComments size={24} className="text-indigo-500" />, name: 'Messages' },
+    { id: 1, icon: <FaCheckCircle size={24} className="text-blue-500" />, name: t("task.completed") },
+    { id: 2, icon: <FaTasks size={24} className="text-green-500" />, name: t("task.ongoing") },
+    { id: 3, icon: <FaCalendarAlt size={24} className="text-red-500" />, name: t("task.scheduled") },
+    { id: 4, icon: <FaUser size={24} className="text-purple-500" />, name: t("task.assigned") },
+    { id: 5, icon: <FaFileAlt size={24} className="text-yellow-500" />, name: t("task.reports") },
+    { id: 6, icon: <FaShoppingCart size={24} className="text-pink-500" />, name: t("task.orders") },
+    { id: 7, icon: <FaBell size={24} className="text-teal-500" />, name: t("task.notifications") },
+    { id: 8, icon: <FaComments size={24} className="text-indigo-500" />, name: t("task.messages") },
   ];
 
   return (

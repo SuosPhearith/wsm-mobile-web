@@ -49,7 +49,7 @@ const SalePage = () => {
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.next_page_url) {
-          return new URL(lastPage.next_page_url).searchParams.get("sale.page");
+          return new URL(lastPage.next_page_url).searchParams.get("page");
         }
         return undefined;
       },

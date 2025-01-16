@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import i18n from "../i18n";
 
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -17,6 +18,7 @@ export const api = async<T> (
     // Set Authorization header if token exists
     const headers = {
       Authorization: token ? `Bearer ${token}` : undefined,
+      "x-lang": i18n.language,
       ...config.headers,
     };
 

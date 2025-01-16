@@ -37,9 +37,11 @@ import {
 import Error from "../components/share/Error";
 import { MdError } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const SaleOrderPage = () => {
   // Load cart items with quantities from localStorage
+  const { t } = useTranslation();
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
   >([]);
@@ -87,7 +89,7 @@ const SaleOrderPage = () => {
           <>
             <div className="flex justify-center items-start gap-2 text-green-500">
               <FaCheckCircle size={22} />
-              Order Successfully
+              {t('saleOrder.orderSuccess')}
             </div>
           </>
         ),
@@ -99,7 +101,7 @@ const SaleOrderPage = () => {
         content: (
           <>
             <div className="text-red-500 flex items-center gap-1">
-              <MdError size={24} /> Something weng wrong.
+              <MdError size={24} /> {t('saleOrder.orderError')}
             </div>
           </>
         ),
@@ -144,8 +146,8 @@ const SaleOrderPage = () => {
       !location
     ) {
       Modal.alert({
-        title: "Field Require.",
-        content: "Please select a require fields.",
+        title: <>{t('saleOrder.filedRequire')}</>,
+        content: <>{t('saleOrder.selectFieldsError')}</>,
         confirmText: "OK",
       });
       return;
@@ -153,10 +155,10 @@ const SaleOrderPage = () => {
 
     // Show confirmation modal
     Modal.alert({
-      title: "Confirm Order",
-      content: "Are you sure to make this order?",
+      title: <>{t('saleOrder.confirmOrder')}</>,
+      content: <>{t('saleOrder.confirmOrderMessage')}</>,
       showCloseButton: true,
-      confirmText: "Yes, Confirm",
+      confirmText: <>{t('saleOrder.confirm')}</>,
       onConfirm: () => {
         const cartData: { product: Product; qty: number }[] = JSON.parse(cart);
         const customer: Customer = JSON.parse(selectedCustomer);
@@ -240,8 +242,8 @@ const SaleOrderPage = () => {
     if (!localStorage.getItem("selectedCustomer")) {
       Modal.alert({
         title: "Field Require.",
-        content: "Please select a customer first.",
-        confirmText: "OK",
+        content: <>{t('saleOrder.selectCustomerFirst')}</>,
+        confirmText: <>{t('saleOrder.ok')}</>,
       });
       return;
     }
@@ -265,7 +267,7 @@ const SaleOrderPage = () => {
     <div className="">
       <div className="fixed top-0 w-full ">
         <NavBar className="bg-white" onBack={() => navigate(-1)}>
-          Sale Order
+          {t('saleOrder.saleOrderTitle')}
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
@@ -273,14 +275,14 @@ const SaleOrderPage = () => {
         <div>
           <div className="flex items-center">
             <UserContactOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">Customer</div>
+            <div className="text-lg ms-1 font-semibold">{t('saleOrder.customer')}</div>
           </div>
           {!selectedCustomer ? (
             <div
               onClick={() => navigate("/customer")}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">Select Customer</div>
+              <div className="text-base">{t('saleOrder.selectCustomer')}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -320,7 +322,7 @@ const SaleOrderPage = () => {
               onClick={handleOpenLocation}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">Select Location</div>
+              <div className="text-base">{t('saleOrder.selectLocation')}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -346,11 +348,6 @@ const SaleOrderPage = () => {
                     <div className="text-sm text-gray-600">
                       📍 <strong>Address:</strong> {location.address_name}
                     </div>
-
-                    <div className="text-sm text-gray-500">
-                      🌐 <strong>Coordinates:</strong> lat: {location.lat}, lng:{" "}
-                      {location.lng}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -369,7 +366,7 @@ const SaleOrderPage = () => {
               onClick={() => setVisible2(true)}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">Select Date</div>
+              <div className="text-base">{t('saleOrder.selectDate')}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -391,7 +388,7 @@ const SaleOrderPage = () => {
               onClick={() => setVisible3(true)}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">Select Time Slot</div>
+              <div className="text-base">{t('saleOrder.selectTimeSlot')}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -413,7 +410,7 @@ const SaleOrderPage = () => {
             <TextArea
               value={note}
               onChange={(v) => setNote(v)}
-              placeholder="Enter remark"
+              placeholder={t('saleOrder.enterRemark')}
               showCount
               maxLength={100}
             />
@@ -422,12 +419,12 @@ const SaleOrderPage = () => {
         <div>
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">Summary</div>
+            <div className="text-lg ms-1 font-semibold">{t('saleOrder.summary')}</div>
           </div>
           <div className="bg-white rounded-lg mt-2 p-3">
             {displayedCartItems.length === 0 ? (
               <div className="text-center text-gray-500">
-                Your cart is empty 😢
+                {t('saleOrder.emptyCart')}
               </div>
             ) : (
               displayedCartItems.map((product) => {
@@ -464,7 +461,7 @@ const SaleOrderPage = () => {
         <Divider />
         {/* Total Price Section */}
         <div className="flex mt-4 p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-lg font-semibold">Total:</div>
+          <div className="text-lg font-semibold">{t('saleOrder.total')}</div>
           <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
         </div>
         <div className="w-full flex gap-4">
@@ -472,7 +469,7 @@ const SaleOrderPage = () => {
             onClick={handleSaleOrder}
             className="bg-primary p-3 w-full rounded-xl text-lg font-bold text-white"
           >
-            {lOrder ? "..." : "Order"}
+            {lOrder ? "..." : t('saleOrder.order')}
           </button>
         </div>
       </div>
@@ -501,7 +498,7 @@ const SaleOrderPage = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {data?.map((item, index) => (
               <div
                 onClick={() => handleSetDate(item)}
