@@ -57,7 +57,7 @@ const Header = () => {
             <img
               src={i18n.language === "en" ? khImage : enImage}
               alt="language-toggle"
-              className="w-8"
+              className="w-6 h-6 rounded-full object-cover"
             />
           </button>
         </div>

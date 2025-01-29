@@ -8,7 +8,7 @@ interface Props {
 
 const ProductItem = ({ item }: Props) => {
   return (
-    <div key={item.id} className="relative rounded-lg overflow-hidden">
+    <div key={item.id} className="relative rounded-lg overflow-hidden w-full h-full">
       {/* Product Image */}
       <img
         src={
@@ -17,7 +17,7 @@ const ProductItem = ({ item }: Props) => {
             : defaultImage
         }
         alt={item.name}
-        className="w-full h-30 object-cover rounded-lg"
+        className="w-full h-40 object-contain rounded-lg bg-white"
       />
 
       {/* Price Badge */}

@@ -1,6 +1,13 @@
-// import { api } from "../services/share";
+import { api } from "../services/share";
 
-// export const getProfile = await () =>{
-//      const response = await api<HomeResT>("GET", "/api/mini/home");
-//       return response.data;
-// }
+export const loginReq = async (data: { email: string; password: string }) => {
+  const response = await api<string>("POST", "/api/mini/login", {
+    ...data,
+  });
+  return response.data;
+};
+
+export const meReq = async ():Promise<object> => {
+  const response = await api<object>("GET", "/api/mini/profile");
+  return response.data;
+};

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../services/share";
+import oflImage from "../assets/imgaes/ofl.svg";
+import { FaLock, FaUser } from "react-icons/fa";
+import { useMutation } from "react-query";
+import { loginReq, meReq } from "../api/auth";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -8,97 +11,87 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const { mutate: MLogin, isLoading: lLogin } = useMutation({
+    mutationFn: loginReq,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err:any) => {
+      setError(err.response?.data?.message || "Invalid Credential!");
+      console.log(err);
+    },
+    onSuccess: async (res) => {
+      window.localStorage.setItem("token", res);
+      const me = await meReq();
+      window.localStorage.setItem("profile", JSON.stringify(me));
+      navigate("/", { replace: true });
+    },
+  });
+
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api<string>("POST", "/api/mini/login", {
-        email: username,
-        password,
-      });
-      window.localStorage.setItem("token", response.data);
-      const me = await api("GET", "/api/mini/profile");
-      window.localStorage.setItem("profile", JSON.stringify(me.data));
-      navigate("/", { replace: true });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+      MLogin({ email: username, password });
+    } catch (err) {
       console.error("Login Error:", err);
     }
   };
 
   return (
-    <>
-      {/* <div className="h-[40vh] w-full">
-        <img
-          alt="Your Company"
-          src="https://i.pinimg.com/736x/8b/3b/40/8b3b4007c21da39a6dde49d2be19c544.jpg"
-          className="w-full h-full object-cover"
-        />
-      </div> */}
-
-      <div className="flex flex-1 flex-col justify-start px-6 lg:px-8">
-        <h2 className="mt-10 text-center text-2xl font-bold text-gray-900">
+    <div className="h-screen bg-blue-300">
+      <img src={oflImage} alt="logo" className="w-full p-10 h-1/2" />
+      <div className="p-8 rounded-t-2xl bg-white shadow w-full h-1/2">
+        <h2 className="text-gray-800 text-center text-2xl font-bold">
           Sign in to your account
         </h2>
-
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={login} className="space-y-6">
-            {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
-            )}
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-900"
-              >
-                Username
-              </label>
-              <div className="mt-2">
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600"
-                />
-              </div>
+        <form onSubmit={login} className="mt-8 space-y-4">
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+          <div>
+            <label className="text-gray-800 text-sm mb-2 block">Username</label>
+            <div className="relative flex items-center">
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                placeholder="Enter user name"
+              />
+              <FaUser className="w-4 h-4 absolute right-4 cursor-pointer text-slate-300" />
             </div>
+          </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-900"
-              >
-                Password
-              </label>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600"
-                />
-              </div>
+          <div>
+            <label className="text-gray-800 text-sm mb-2 block">Password</label>
+            <div className="relative flex items-center">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                placeholder="Enter password"
+              />
+              <FaLock className="w-4 h-4 absolute right-4 cursor-pointer text-slate-300" />
             </div>
+          </div>
 
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="pb-10">
+            <button
+              type="submit"
+              className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
+            >
+              {lLogin ? "..." : "Sign in"}
+            </button>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -80,10 +80,12 @@ const SaleOrderPage = () => {
   // make order
   const { mutate: mOrder, isLoading: lOrder } = useMutation({
     mutationFn: createSaleOrder,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data)
+      window.localStorage.setItem("ordered", JSON.stringify(data) || "{}");
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
-      navigate("/sale");
+      navigate("/ordered-order");
       Toast.show({
         content: (
           <>
@@ -503,7 +505,7 @@ const SaleOrderPage = () => {
               <div
                 onClick={() => handleSetDate(item)}
                 key={index}
-                className="bg-gray-100 p-2 rounded-lg text-center text-lg font-base"
+                className="bg-gray-100 p-2 rounded-lg text-center text-base font-base"
               >
                 {formatDate(item.date)}
               </div>

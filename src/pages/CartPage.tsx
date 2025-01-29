@@ -62,7 +62,7 @@ const CartPage = () => {
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
-      <div className="p-4 bg-gray-100 space-y-4">
+      <div className="p-4 bg-gray-100 space-y-4 mb-[170px]">
         {displayedCartItems.length === 0 ? (
           <div className="text-center text-gray-500">{t("cart.emptyCart")}</div>
         ) : (
@@ -82,7 +82,7 @@ const CartPage = () => {
           })
         )}
       </div>
-      <div className="fixed bottom-0 w-full p-4">
+      <div className="fixed bottom-0 w-full p-4 bg-white">
         <Divider />
         {/* Total Price Section */}
         <div className="flex mt-4  p-4 pt-0 rounded-xl justify-between items-center">

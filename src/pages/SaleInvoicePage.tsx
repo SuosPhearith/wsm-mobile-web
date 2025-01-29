@@ -1,12 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  Divider,
-  Modal,
-  NavBar,
-  TextArea,
-  Toast,
-} from "antd-mobile";
+import { Dialog, Divider, Modal, NavBar, TextArea, Toast } from "antd-mobile";
 import {
   CloseCircleOutline,
   EditFill,
@@ -65,10 +58,11 @@ const SaleInvoicePage = () => {
 
   const { mutate: mOrder, isLoading: lOrder } = useMutation({
     mutationFn: createSaleInvoice,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      window.localStorage.setItem("ordered", JSON.stringify(data) || "{}");
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
-      navigate("/sale");
+      navigate("/ordered-invoice");
       Toast.show({
         content: (
           <div className="flex justify-center items-start gap-2 text-green-500">
@@ -140,7 +134,9 @@ const SaleInvoicePage = () => {
         <div>
           <div className="flex items-center">
             <UserContactOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">{t("saleInvoice.customer")}</div>
+            <div className="text-lg ms-1 font-semibold">
+              {t("saleInvoice.customer")}
+            </div>
           </div>
           {!selectedCustomer ? (
             <div
@@ -196,7 +192,9 @@ const SaleInvoicePage = () => {
         <div>
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">{t("saleInvoice.summary")}</div>
+            <div className="text-lg ms-1 font-semibold">
+              {t("saleInvoice.summary")}
+            </div>
           </div>
           <div className="bg-white rounded-lg mt-2 p-3">
             {displayedCartItems.length === 0 ? (
@@ -214,9 +212,7 @@ const SaleInvoicePage = () => {
                     key={product.product.id}
                   >
                     <div>
-                      <span className="text-blue-600">
-                        {itemInCart?.qty} x
-                      </span>{" "}
+                      <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
                       <span className="font-semibold">
                         {product.product.name}
                       </span>{" "}

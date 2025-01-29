@@ -15,6 +15,9 @@ import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthCheck from "./components/share/AuthCheck";
 import NotFoundPage from "./pages/NoteFoundPage";
+import SaleInvoiceSuccessPage from "./pages/SaleInvoiceSuccessPage";
+import SaleOrderSuccessPage from "./pages/SaleOrderSuccessPage";
+import TestPage from "./pages/TestPage";
 
 function App() {
   return (
@@ -49,6 +52,9 @@ function App() {
           <Route path="/sale-invoice" element={<SaleInvoicePage />} />
           <Route path="/sale-order" element={<SaleOrderPage />} />
           <Route path="/customer" element={<CustomerPage />} />
+          <Route path="/ordered-invoice" element={<SaleInvoiceSuccessPage />} />
+          <Route path="/ordered-order" element={<SaleOrderSuccessPage />} />
+          <Route path="/test" element={<TestPage />} />
         </Route>
 
         {/* Public Page */}
