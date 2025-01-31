@@ -1,4 +1,4 @@
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import TodoPage from "./pages/TodoPage";
@@ -18,6 +18,7 @@ import NotFoundPage from "./pages/NoteFoundPage";
 import SaleInvoiceSuccessPage from "./pages/SaleInvoiceSuccessPage";
 import SaleOrderSuccessPage from "./pages/SaleOrderSuccessPage";
 import TestPage from "./pages/TestPage";
+import SelectedAppPage from "./pages/SelectedAppPage";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/ordered-invoice" element={<SaleInvoiceSuccessPage />} />
           <Route path="/ordered-order" element={<SaleOrderSuccessPage />} />
           <Route path="/test" element={<TestPage />} />
+          <Route path="/seleted-app" element={<SelectedAppPage />} />
         </Route>
 
         {/* Public Page */}

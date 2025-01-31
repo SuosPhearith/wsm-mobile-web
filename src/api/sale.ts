@@ -22,6 +22,12 @@ export const getProduct = async (
   category_id: string,
   keyword: string
 ): Promise<PaginatedResponse<Product>> => {
+  const appId = localStorage.getItem("app");
+  const appName = localStorage.getItem("app-name");
+  if (!appId || !appName) {
+    window.localStorage.clear();
+    throw new Error("App not found!");
+  }
   const params = new URLSearchParams({
     page,
     perPage,
@@ -34,7 +40,7 @@ export const getProduct = async (
   }
   const response = await api<PaginatedResponse<Product>>(
     "GET",
-    `/api/mini/product/search?${params.toString()}`
+    `/api/mini/${appId}/product/search?${params.toString()}`
   );
   return response.data;
 };

@@ -22,7 +22,7 @@ const LoginPage = () => {
       window.localStorage.setItem("token", res);
       const me = await meReq();
       window.localStorage.setItem("profile", JSON.stringify(me));
-      navigate("/", { replace: true });
+      navigate("/seleted-app", { replace: true });
     },
   });
 

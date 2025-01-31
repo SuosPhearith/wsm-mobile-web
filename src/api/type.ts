@@ -16,29 +16,58 @@ export interface Category {
   updated_at: string;
 }
 
+// export interface Product {
+//   id: number;
+//   product_no: string;
+//   name: string;
+//   name_kh: string;
+//   category_id: number;
+//   thumbnail: string | null;
+//   min_qty: number;
+//   qty: number;
+//   max_qty: number | null;
+//   increment_qty: number;
+//   fraction_qty: number;
+//   uom_id: number;
+//   unit_price: number;
+//   photo: string[]; // Assuming photo is an array of strings (URLs)
+//   description: string | null;
+//   description_kh: string | null;
+//   on_sale: boolean;
+//   wholesale_id: number;
+//   created_at: string;
+//   updated_at: string;
+//   deleted_at: string | null;
+//   sale_price: number;
+// }
+// Unit of Measurement (UOM)
+interface UOM {
+  id: number;
+  name: string;
+  description?: string | null;
+}
+
+// Inventory Structure
+interface Inventory {
+  warehouse_id: number;
+  product_id: number;
+  quantity: number;
+  stock_alert: number;
+}
+
+// Product Interface
 export interface Product {
   id: number;
-  product_no: string;
-  name: string;
-  name_kh: string;
-  category_id: number;
-  thumbnail: string | null;
-  min_qty: number;
-  qty: number;
-  max_qty: number | null;
-  increment_qty: number;
-  fraction_qty: number;
+  thumbnail: string;
   uom_id: number;
+  qty: number;
+  min_qty: number;
+  max_qty?: number | null;
+  currency: string;
   unit_price: number;
-  photo: string[]; // Assuming photo is an array of strings (URLs)
-  description: string | null;
-  description_kh: string | null;
-  on_sale: boolean;
-  wholesale_id: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  sale_price: number;
+  name: string;
+  uom: UOM;
+  inventories: Inventory[];
 }
 
 export interface PaginatedResponse<T> {

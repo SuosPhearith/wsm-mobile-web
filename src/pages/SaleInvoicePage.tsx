@@ -131,6 +131,21 @@ const SaleInvoicePage = () => {
       </div>
       <div className="h-[50px]"></div>
       <div className="p-4">
+        <div className="mb-2">
+          <div className="flex items-center">
+            <UserContactOutline fontSize={20} />
+            <div className="text-lg ms-1 font-semibold">Warehouse</div>
+          </div>
+          <div
+              onClick={() => navigate("/customer")}
+              className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
+            >
+              <div className="text-base">{localStorage.getItem('app-name')}</div>
+              <div>
+                <EditFill fontSize={18} />
+              </div>
+            </div>
+        </div>
         <div>
           <div className="flex items-center">
             <UserContactOutline fontSize={20} />

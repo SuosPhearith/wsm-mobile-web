@@ -6,6 +6,7 @@ import {
   Popup,
   Stepper,
 } from "antd-mobile";
+import { RiExchangeLine } from "react-icons/ri";
 import { BsCart2 } from "react-icons/bs";
 import ProductItem from "../components/sale/ProductItem";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -148,175 +149,192 @@ const SalePage = () => {
     };
   }, [searchInput, debouncedSearch]);
 
+  const handleSwitchApp = () => {
+    navigate("/seleted-app");
+  };
+
   // Loading and error handling
   if (lCategory) return <p></p>;
   if (eCategory || eProduct) return <p>{t("sale.categoriesError")}</p>;
 
   return (
-    <div className="p-4">
-      {/* Search area */}
-      <div className="flex bg-white p-2 rounded-lg items-center">
-        <div className="me-2">
-          {searchInput ? (
-            <CloseCircleOutline
-              color="red"
-              fontSize={22}
-              onClick={handleResetSearch}
+    <div>
+      <div className="p-4">
+        {/* Search area */}
+        <div className="flex bg-white p-2 rounded-lg items-center">
+          <div className="me-2">
+            {searchInput ? (
+              <CloseCircleOutline
+                color="red"
+                fontSize={22}
+                onClick={handleResetSearch}
+              />
+            ) : (
+              <SearchOutline fontSize={22} />
+            )}
+          </div>
+          <input
+            className="text-base w-[90%] border-none outline-none focus:ring-0 focus:outline-none"
+            type="text"
+            placeholder={localStorage.getItem("app-name") || ""}
+            value={searchInput}
+            onChange={(e) => handleInputSearch(e.target.value)}
+          />
+          <div>
+            <RiExchangeLine
+              size={24}
+              color="blue"
+              onClick={() => handleSwitchApp()}
             />
-          ) : (
-            <SearchOutline fontSize={22} />
-          )}
+          </div>
         </div>
-        <input
-          className="text-base w-[90%] border-none outline-none focus:ring-0 focus:outline-none"
-          type="text"
-          placeholder={t("sale.searchPlaceholder")}
-          value={searchInput}
-          onChange={(e) => handleInputSearch(e.target.value)}
-        />
-      </div>
 
-      {/* Category area */}
-      <section className="my-4">
-        <div className="flex w-full overflow-auto scroll-smooth scrollbar-hide">
-          <button
-            onClick={() => setCId("")}
-            className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg ${
-              !cId ? "bg-primary text-white" : "bg-white"
-            }`}
-          >
-            {t("sale.all")}
-          </button>
-          {dCategory?.map((item) => (
+        {/* Category area */}
+        <section className="my-4">
+          <div className="flex w-full overflow-auto scroll-smooth scrollbar-hide">
             <button
-              onClick={() => setCId(item.id.toString())}
+              onClick={() => setCId("")}
               className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg ${
-                item.id.toString() === cId
-                  ? "bg-primary text-white"
-                  : "bg-white"
+                !cId ? "bg-primary text-white" : "bg-white"
               }`}
-              key={item.id}
             >
-              {item.name}
+              {t("sale.all")}
             </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Product list area */}
-      {!lProduct && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
-          {dProduct?.pages
-            .flatMap((page) => page.data)
-            .map((item) => (
-              <div key={item.id} onClick={() => handleAddToCart(item)}>
-                <ProductItem item={item} />
-              </div>
+            {dCategory?.map((item) => (
+              <button
+                onClick={() => setCId(item.id.toString())}
+                className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg ${
+                  item.id.toString() === cId
+                    ? "bg-primary text-white"
+                    : "bg-white"
+                }`}
+                key={item.id}
+              >
+                {item.name}
+              </button>
             ))}
-        </div>
-      )}
+          </div>
+        </section>
 
-      {isFetchingNextPage && (
-        <div className="w-full h-5 flex justify-center items-center">
-          <DotLoading />
-        </div>
-      )}
+        {/* Product list area */}
+        {!lProduct && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
+            {dProduct?.pages
+              .flatMap((page) => page.data)
+              .map((item) => (
+                <div key={item.id} onClick={() => handleAddToCart(item)}>
+                  <ProductItem item={item} />
+                </div>
+              ))}
+          </div>
+        )}
 
-      {/* Infinite Scroll */}
-      <InfiniteScroll
-        loadMore={async () => {
-          await fetchNextPage();
-        }}
-        hasMore={!!hasNextPage}
-      >
-        {t("sale.noMoreProducts")}
-      </InfiniteScroll>
+        {isFetchingNextPage && (
+          <div className="w-full h-5 flex justify-center items-center">
+            <DotLoading />
+          </div>
+        )}
 
-      {cartBadge() !== 0 && (
-        <FloatingBubble
-          onClick={() => navigate("/cart")}
-          axis="x"
-          magnetic="x"
-          style={{
-            "--initial-position-bottom": "64px",
-            "--initial-position-right": "24px",
-            "--edge-distance": "24px",
+        {/* Infinite Scroll */}
+        <InfiniteScroll
+          loadMore={async () => {
+            await fetchNextPage();
+          }}
+          hasMore={!!hasNextPage}
+        >
+          {t("sale.noMoreProducts")}
+        </InfiniteScroll>
+
+        {cartBadge() !== 0 && (
+          <FloatingBubble
+            onClick={() => navigate("/cart")}
+            axis="x"
+            magnetic="x"
+            style={{
+              "--initial-position-bottom": "64px",
+              "--initial-position-right": "24px",
+              "--edge-distance": "24px",
+            }}
+          >
+            <Badge
+              color="white"
+              content={
+                <div className="text-black">{cartBadge().toString()}</div>
+              }
+            >
+              <BsCart2 fontSize={22} className="me-1" />
+            </Badge>
+          </FloatingBubble>
+        )}
+
+        <Popup
+          visible={visible}
+          onMaskClick={handleReset}
+          onClose={handleReset}
+          bodyStyle={{
+            borderTopLeftRadius: "8px",
+            borderTopRightRadius: "8px",
+            minHeight: "35vh",
+            background: "#f3f4f6",
           }}
         >
-          <Badge
-            color="white"
-            content={
-              <div className="text-black">{cartBadge().toString()}</div>
-            }
-          >
-            <BsCart2 fontSize={22} className="me-1" />
-          </Badge>
-        </FloatingBubble>
-      )}
-
-      <Popup
-        visible={visible}
-        onMaskClick={handleReset}
-        onClose={handleReset}
-        bodyStyle={{
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
-          minHeight: "35vh",
-          background: "#f3f4f6",
-        }}
-      >
-        {/* Popup Content */}
-        <div className="p-4 h-full flex flex-col justify-center items-center">
-          <div className="text-lg font-semibold mb-2">{t("sale.selectQuantity")}</div>
-          <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
-            <div className="flex">
-              <div className="bg-primary w-16 h-16 me-2 rounded-xl">
-                <img
-                  src={
-                    product?.thumbnail
-                      ? `${import.meta.env.VITE_APP_ASSET_URL}${product?.thumbnail}`
-                      : defaultImage
-                  }
-                  alt="img"
-                  className="w-full h-full object-contain rounded-xl"
-                />
-              </div>
-              <div className="flex flex-col justify-around items-start">
-                <div className="text-base font-semibold">{product?.name}</div>
-                <div>
-                  <div className="text-base">
-                    {priceValue(product?.unit_price)}
+          {/* Popup Content */}
+          <div className="p-4 h-full flex flex-col justify-center items-center">
+            <div className="text-lg font-semibold mb-2">
+              {t("sale.selectQuantity")}
+            </div>
+            <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
+              <div className="flex">
+                <div className="min-w-16 h-16 me-2 rounded-xl">
+                  <img
+                    src={
+                      product?.thumbnail
+                        ? `${import.meta.env.VITE_APP_ASSET_URL}${
+                            product?.thumbnail
+                          }`
+                        : defaultImage
+                    }
+                    alt="img"
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                </div>
+                <div className="flex flex-col justify-around items-start">
+                  <div className="text-base font-semibold">{product?.name}</div>
+                  <div>
+                    <div className="text-base">
+                      {priceValue(product?.unit_price)}
+                    </div>
                   </div>
                 </div>
               </div>
+              <div>
+                <Stepper
+                  defaultValue={1}
+                  min={1}
+                  value={qty}
+                  onChange={(value) => {
+                    setQty(value);
+                  }}
+                />
+              </div>
             </div>
-            <div>
-              <Stepper
-                defaultValue={1}
-                min={1}
-                value={qty}
-                onChange={(value) => {
-                  setQty(value);
-                }}
-              />
+            <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
+              <div className="text-base">{t("sale.total")}</div>
+              <div className="text-base">
+                {priceValue((product?.unit_price ?? 0) * qty)}
+              </div>
+            </div>
+            <div className="absolute bottom-0 px-4 w-full mb-3">
+              <button
+                className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
+                onClick={() => handleSubmitAddToCart(product, qty)}
+              >
+                {t("sale.addToCart")}
+              </button>
             </div>
           </div>
-          <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
-            <div className="text-base">{t("sale.total")}</div>
-            <div className="text-base">
-              {priceValue((product?.unit_price ?? 0) * qty)}
-            </div>
-          </div>
-          <div className="absolute bottom-0 px-4 w-full mb-3">
-            <button
-              className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
-              onClick={() => handleSubmitAddToCart(product, qty)}
-            >
-              {t("sale.addToCart")}
-            </button>
-          </div>
-        </div>
-      </Popup>
+        </Popup>
+      </div>
     </div>
   );
 };

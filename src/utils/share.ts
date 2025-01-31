@@ -1,7 +1,9 @@
 export const priceValue = (value?: number) => {
+  const currency = localStorage.getItem("currency") || "USD"; // Get currency from localStorage or default to USD
+
   return value?.toLocaleString("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: currency,
   });
 };
 
