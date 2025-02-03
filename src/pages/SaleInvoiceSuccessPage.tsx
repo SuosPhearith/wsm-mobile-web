@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NotFoundPage from "./NoteFoundPage";
+import { NavBar } from "antd-mobile";
 
 interface SaleInvoiceItem {
   id: number;
   order_no: string;
   product_id: number;
+  pos_app_id: string;
   product_detail: {
     id: number;
     name: string;
@@ -41,13 +43,21 @@ const SaleInvoiceSuccessPage = () => {
     navigate("/sale");
   };
   if (!invoice.order_no) {
-    return (
-      <NotFoundPage/>
-    );
+    return <NotFoundPage />;
   }
   return (
     <div>
-      <div className="bg-gray-100 min-h-screen p-6 mb-[100px]">
+      <div className="fixed top-0 w-full">
+        <NavBar
+          className="bg-white"
+          onBack={() => handleBack()}
+          right={<div className="text-primary text-base" onClick={() => handleBack()}>Print</div>}
+        >
+          Invoice
+        </NavBar>
+      </div>
+      <div className="h-[50px]"></div>
+      <div className="bg-gray-100 min-h-screen p-6">
         <div className="bg-white shadow-lg rounded-lg max-w-3xl w-full p-6">
           <div className="text-center border-b pb-4 mb-4">
             <h1 className="text-2xl font-bold text-gray-800">Sale Invoice</h1>
@@ -114,10 +124,6 @@ const SaleInvoiceSuccessPage = () => {
                 <span>${invoice.discount.toFixed(2)}</span>
               </p>
               <p className="flex justify-between">
-                <span>Delivery Fee:</span>{" "}
-                <span>${invoice.delivery_fee.toFixed(2)}</span>
-              </p>
-              <p className="flex justify-between">
                 <span>Tax:</span> <span>${invoice.tax.toFixed(2)}</span>
               </p>
               <p className="flex justify-between font-bold text-gray-800">
@@ -131,25 +137,12 @@ const SaleInvoiceSuccessPage = () => {
             Created At: {new Date(invoice.created_at).toLocaleString()} |
             Updated At: {new Date(invoice.updated_at).toLocaleString()}
           </p>
+          <p className="text-gray-500 text-xs text-center mt-4">
+            {invoice.pos_app_id}
+          </p>
         </div>
       </div>
-      <div className="fixed bottom-0 w-full p-4 bg-white">
-        <div className="w-full flex gap-4 bg-white">
-          <button
-            onClick={handleBack}
-            className={`p-3 w-1/2 rounded-xl text-lg font-bold text-white bg-primary`}
-          >
-            Back
-          </button>
-
-          <button
-            onClick={handleBack}
-            className={`p-3 w-1/2 rounded-xl text-lg font-bold text-white bg-blue-400`}
-          >
-            Print
-          </button>
-        </div>
-      </div>
+      
     </div>
   );
 };

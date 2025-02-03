@@ -19,6 +19,7 @@ import SaleInvoiceSuccessPage from "./pages/SaleInvoiceSuccessPage";
 import SaleOrderSuccessPage from "./pages/SaleOrderSuccessPage";
 import TestPage from "./pages/TestPage";
 import SelectedAppPage from "./pages/SelectedAppPage";
+import SaleInvoiceHistory from "./pages/SaleInvoiceHistory";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
           <Route path="/ordered-order" element={<SaleOrderSuccessPage />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="/seleted-app" element={<SelectedAppPage />} />
+          <Route path="/sale-invoice-history" element={<SaleInvoiceHistory />} />
         </Route>
 
         {/* Public Page */}

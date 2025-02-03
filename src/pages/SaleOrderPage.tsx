@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Dialog,
-  Divider,
   Modal,
   NavBar,
   Popup,
@@ -156,11 +155,11 @@ const SaleOrderPage = () => {
     }
 
     // Show confirmation modal
-    Modal.alert({
-      title: <>{t('saleOrder.confirmOrder')}</>,
-      content: <>{t('saleOrder.confirmOrderMessage')}</>,
-      showCloseButton: true,
-      confirmText: <>{t('saleOrder.confirm')}</>,
+    Dialog.confirm({
+      title: t("saleInvoice.confirmOrder"),
+      content: t("saleInvoice.confirmOrderMessage"),
+      confirmText: "Ok",
+      cancelText: "Cancel",
       onConfirm: () => {
         const cartData: { product: Product; qty: number }[] = JSON.parse(cart);
         const customer: Customer = JSON.parse(selectedCustomer);
@@ -170,6 +169,7 @@ const SaleOrderPage = () => {
             qty: item.qty,
             note: "Nothing",
           })),
+          pos_app_id: localStorage.getItem("app") || "",
           customer_id: customer.id,
           delivery_date: selectedDate.date,
           time_slot: selectedTimeSlot.slot,
@@ -277,7 +277,7 @@ const SaleOrderPage = () => {
         <div>
           <div className="flex items-center">
             <UserContactOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">{t('saleOrder.customer')}</div>
+            <div className="text-lg ms-1 font-semibold">Delivery</div>
           </div>
           {!selectedCustomer ? (
             <div
@@ -418,7 +418,7 @@ const SaleOrderPage = () => {
             />
           </div>
         </div>
-        <div>
+        <div className="mb-[250px]">
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
             <div className="text-lg ms-1 font-semibold">{t('saleOrder.summary')}</div>
@@ -435,19 +435,21 @@ const SaleOrderPage = () => {
                 );
                 return (
                   <div
-                    className="bg-white flex justify-between rounded-lg my-1"
+                    className="bg-white flex justify-between items-center rounded-lg my-1"
                     key={product.product.id}
                   >
-                    <div>
-                      <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
-                      <span className="font-semibold">
+                    <div className="flex items-center p-2">
+                      <div className="text-blue-600 flex min-w-fit me-2">
+                        {itemInCart?.qty} x
+                      </div>
+                      <div className="">
                         {product.product.name}
-                      </span>{" "}
-                      <span className="text-black ms-2">
-                        {priceValue(product.product.unit_price)}
-                      </span>
+                        <span className="text-black ms-2 font-bold">
+                          {priceValue(product.product.unit_price)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-blue-600">
+                    <div className="text-blue-600 ms-3">
                       {priceValue(
                         product.product.unit_price * (itemInCart?.qty ?? 0)
                       )}
@@ -459,11 +461,17 @@ const SaleOrderPage = () => {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 w-full p-4">
-        <Divider />
-        {/* Total Price Section */}
-        <div className="flex mt-4 p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-lg font-semibold">{t('saleOrder.total')}</div>
+      <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-base">Subtotal:</div>
+          <div className="text-base">{priceValue(totalPrice)}</div>
+        </div>
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-base">Discount:</div>
+          <div className="text-base">{priceValue(0)}</div>
+        </div>
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-lg font-semibold">{t("saleInvoice.total")}</div>
           <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
         </div>
         <div className="w-full flex gap-4">
@@ -471,7 +479,7 @@ const SaleOrderPage = () => {
             onClick={handleSaleOrder}
             className="bg-primary p-3 w-full rounded-xl text-lg font-bold text-white"
           >
-            {lOrder ? "..." : t('saleOrder.order')}
+            {lOrder ? t("saleInvoice.loading") : t("saleInvoice.order")}
           </button>
         </div>
       </div>

@@ -245,7 +245,6 @@ const SalePage = () => {
           {t("sale.noMoreProducts")}
         </InfiniteScroll>
 
-        {cartBadge() !== 0 && (
           <FloatingBubble
             onClick={() => navigate("/cart")}
             axis="x"
@@ -265,7 +264,6 @@ const SalePage = () => {
               <BsCart2 fontSize={22} className="me-1" />
             </Badge>
           </FloatingBubble>
-        )}
 
         <Popup
           visible={visible}

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Dialog, Divider, Modal, NavBar, TextArea, Toast } from "antd-mobile";
 import {
-  CloseCircleOutline,
-  EditFill,
-  FileOutline,
-  UserContactOutline,
-} from "antd-mobile-icons";
+  Dialog,
+  Modal,
+  NavBar,
+  Popup,
+  TextArea,
+  Toast,
+} from "antd-mobile";
+import { CloseCircleOutline, EditFill, FileOutline } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
 import { priceValue } from "../utils/share";
 import { Customer, Product, SaleInvoiceInterface } from "../api/type";
@@ -13,11 +15,15 @@ import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { useMutation } from "react-query";
 import { createSaleInvoice } from "../api/sale";
 import { MdError } from "react-icons/md";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaStore, FaTruck } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { LuBox } from "react-icons/lu";
+import { FiDollarSign, FiMapPin, FiTag } from "react-icons/fi";
+import { PosApp } from "./SelectedAppPage";
 
 const SaleInvoicePage = () => {
   const { t } = useTranslation(); // Use "saleInvoice" namespace
+  const [posApps, setPosApps] = useState<PosApp[]>([]);
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
   >([]);
@@ -25,6 +31,7 @@ const SaleInvoicePage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
+  const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,12 +106,11 @@ const SaleInvoicePage = () => {
       });
       return;
     }
-
-    Modal.alert({
+    Dialog.confirm({
       title: t("saleInvoice.confirmOrder"),
       content: t("saleInvoice.confirmOrderMessage"),
-      showCloseButton: true,
-      confirmText: t("saleInvoice.confirm"),
+      confirmText: "Ok",
+      cancelText: "Cancel",
       onConfirm: () => {
         const cartData: { product: Product; qty: number }[] = JSON.parse(cart);
         const customer: Customer = JSON.parse(selectedCustomer);
@@ -115,11 +121,80 @@ const SaleInvoicePage = () => {
             note: "Nothing",
           })),
           customer_id: customer.id,
+          pos_app_id: localStorage.getItem("app") || "",
           remark: note,
         };
         mOrder(orderData);
       },
     });
+  };
+
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  const [selectedApp, setSelectedApp] = useState<{
+    id: string;
+    name: string;
+    currency: string;
+    warehouse?: string;
+  } | null>(null);
+
+  // Load data from localStorage
+  useEffect(() => {
+    const storedData = localStorage.getItem("profile");
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        setPosApps(parsedData.pos_apps || []);
+      } catch (error) {
+        console.error("Error parsing localStorage data:", error);
+      }
+    }
+  }, []);
+
+  // Set only one selection at a time
+  const handleSelection = (
+    id: string,
+    name: string,
+    currency: string,
+    warehouse: string
+  ) => {
+    setSelectedApp(
+      selectedApp?.id === id ? null : { id, name, currency, warehouse }
+    );
+  };
+
+  // Handle Confirm Click
+  const handleConfirm = () => {
+    if (selectedApp) {
+      // get currency from local storage
+      const currency = localStorage.getItem("currency") || "";
+      if (selectedApp.currency !== currency) {
+        Dialog.confirm({
+          title: "Switch Confirmation",
+          content: `It will remove current cart and hold data?`,
+          confirmText: "Switch",
+          cancelText: "Cancel",
+          onConfirm: () => {
+            window.localStorage.removeItem("cart");
+            window.localStorage.removeItem("hold");
+            window.localStorage.setItem("app", selectedApp.id);
+            window.localStorage.setItem("app-name", selectedApp.name);
+            window.localStorage.setItem("currency", selectedApp.currency);
+            window.localStorage.setItem(
+              "warehouse",
+              selectedApp.warehouse || ""
+            );
+            navigate("/sale");
+          },
+        });
+      } else {
+        window.localStorage.removeItem("hold");
+        window.localStorage.setItem("app", selectedApp.id);
+        window.localStorage.setItem("app-name", selectedApp.name);
+        window.localStorage.setItem("currency", selectedApp.currency);
+        window.localStorage.setItem("warehouse", selectedApp.warehouse || "");
+        setVisible(false);
+      }
+    }
   };
 
   return (
@@ -133,26 +208,25 @@ const SaleInvoicePage = () => {
       <div className="p-4">
         <div className="mb-2">
           <div className="flex items-center">
-            <UserContactOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">Warehouse</div>
+            <LuBox fontSize={20} />
+            <div className="text-lg ms-1 font-semibold">Stock allocation</div>
           </div>
           <div
-              onClick={() => navigate("/customer")}
-              className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
-            >
-              <div className="text-base">{localStorage.getItem('app-name')}</div>
-              <div>
-                <EditFill fontSize={18} />
-              </div>
+            onClick={() => setVisible(true)}
+            className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
+          >
+            <div className="text-sm">
+              {localStorage.getItem("app-name")}
+              <span className="bg-primary text-white px-1 rounded-md ms-2 text-sm">
+                {localStorage.getItem("warehouse")}
+              </span>
             </div>
-        </div>
-        <div>
-          <div className="flex items-center">
-            <UserContactOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">
-              {t("saleInvoice.customer")}
+            <div>
+              <EditFill fontSize={18} />
             </div>
           </div>
+        </div>
+        <div>
           {!selectedCustomer ? (
             <div
               onClick={() => navigate("/customer")}
@@ -204,7 +278,7 @@ const SaleInvoicePage = () => {
             />
           </div>
         </div>
-        <div>
+        <div className="mb-[250px]">
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
             <div className="text-lg ms-1 font-semibold">
@@ -223,19 +297,21 @@ const SaleInvoicePage = () => {
                 );
                 return (
                   <div
-                    className="bg-white flex justify-between rounded-lg my-1"
+                    className="bg-white flex justify-between items-center rounded-lg my-1"
                     key={product.product.id}
                   >
-                    <div>
-                      <span className="text-blue-600">{itemInCart?.qty} x</span>{" "}
-                      <span className="font-semibold">
+                    <div className="flex items-center p-2">
+                      <div className="text-blue-600 flex min-w-fit me-2">
+                        {itemInCart?.qty} x
+                      </div>
+                      <div className="">
                         {product.product.name}
-                      </span>{" "}
-                      <span className="text-black ms-2">
-                        {priceValue(product.product.unit_price)}
-                      </span>
+                        <span className="text-black ms-2 font-bold">
+                          {priceValue(product.product.unit_price)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-blue-600">
+                    <div className="text-blue-600 ms-3">
                       {priceValue(
                         product.product.unit_price * (itemInCart?.qty ?? 0)
                       )}
@@ -247,9 +323,16 @@ const SaleInvoicePage = () => {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 w-full p-4">
-        <Divider />
-        <div className="flex mt-4 p-4 pt-0 rounded-xl justify-between items-center">
+      <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-base">Subtotal:</div>
+          <div className="text-base">{priceValue(totalPrice)}</div>
+        </div>
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-base">Discount:</div>
+          <div className="text-base">{priceValue(0)}</div>
+        </div>
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
           <div className="text-lg font-semibold">{t("saleInvoice.total")}</div>
           <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
         </div>
@@ -262,6 +345,79 @@ const SaleInvoicePage = () => {
           </button>
         </div>
       </div>
+      <Popup
+        visible={visible}
+        onMaskClick={() => setVisible(false)}
+        onClose={() => setVisible(false)}
+        bodyStyle={{
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          minHeight: "fit-content",
+          background: "#f3f4f6",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "1rem",
+        }}
+      >
+        {/* Popup Content */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="text-lg font-semibold mb-2">Select App</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+            {posApps.map((app) => (
+              <div
+                key={app.id}
+                onClick={() =>
+                  handleSelection(
+                    app.id,
+                    app.name,
+                    app.main_currency,
+                    app.warehouse?.name || ""
+                  )
+                }
+                className={`p-6 border rounded-lg transition flex flex-col cursor-pointer ${
+                  selectedApp?.id === app.id
+                    ? "bg-blue-100 border-blue-500 shadow-lg"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  {app.warehouse?.unit_type === "Truck" ? (
+                    <FaTruck className="text-blue-500 text-2xl" />
+                  ) : (
+                    <FaStore className="text-blue-500 text-2xl" />
+                  )}
+                  <h2 className="font-semibold text-lg text-gray-800">
+                    {app.name}
+                  </h2>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <FiTag className="text-green-500" />
+                  <p className="text-sm">Type: {app.type}</p>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600 mt-1">
+                  <FiDollarSign className="text-yellow-500" />
+                  <p className="text-sm">
+                    Currency: {app.main_currency} / {app.secondary_currency}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600 mt-1">
+                  <FiMapPin className="text-red-500" />
+                  <p className="text-sm">
+                    Warehouse: {app.warehouse?.name || "N/A"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button
+          className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
+          onClick={handleConfirm}
+        >
+          Confirm
+        </button>
+      </Popup>
     </div>
   );
 };

@@ -138,11 +138,13 @@ export interface SaleOrderInterface {
   lng: number;
   address_id : number;
   remark?: string;
+  pos_app_id: string;
 }
 export interface SaleInvoiceInterface {
   items: SaleOrderItem[];
   customer_id: number;
   remark?: string;
+  pos_app_id?: string;
 }
 
 export interface Address {
@@ -153,4 +155,35 @@ export interface Address {
   address_name: string;
   customer_id: number;
   note?: string;
+}
+
+export interface CustomerHistory {
+  id: number;
+  name: string;
+}
+
+export interface SaleInvoiceHistory {
+  order_no: string;
+  user_id: number;
+  customer_id: number;
+  subtotal: number;
+  discount: number;
+  delivery_fee: number;
+  tax: number;
+  grand_total: number;
+  currency: string;
+  second_grand_total: number;
+  second_currency: string;
+  type: string;
+  trx_ref: string;
+  order_from: string;
+  status: string;
+  wholesale_id: number;
+  customer_address_id: number | null;
+  remark: string | null;
+  pos_app_id: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+  order_items_count: number;
+  customer: Customer;
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, Divider, NavBar, Popup, Stepper, Toast } from "antd-mobile";
+import { Dialog, NavBar, Popup, Stepper, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -209,10 +209,10 @@ const CartPage = () => {
           right={
             <div className="flex justify-end">
               <RiDeleteBin5Line
-                  size={20}
-                  className="text-red-700"
-                  onClick={() => handleClearCart()}
-                />
+                size={20}
+                className="text-red-700"
+                onClick={() => handleClearCart()}
+              />
             </div>
           }
         >
@@ -226,8 +226,11 @@ const CartPage = () => {
       <section className="mt-4 px-4">
         <div className="flex w-full overflow-auto scroll-smooth scrollbar-hide">
           <button
+            disabled={displayedCartItems.length === 0}
             onClick={() => setVisible(true)}
-            className={`px-4 min-w-fit py-1 text-base me-2 rounded-lg bg-white flex items-center text-blue-500`}
+            className={`px-4 ${
+              displayedCartItems.length === 0 ? "text-gray-400" : ""
+            } min-w-fit py-1 text-base me-2 rounded-lg bg-white flex items-center text-blue-500`}
           >
             <FiPlusCircle className="me-2" /> Hold
           </button>
@@ -262,8 +265,7 @@ const CartPage = () => {
           })
         )}
       </div>
-      <div className="fixed bottom-0 w-full p-4 bg-white">
-        <Divider />
+      <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
         {/* Total Price Section */}
         <div className="flex mt-4  p-4 pt-0 rounded-xl justify-between items-center">
           <div className="text-lg font-semibold">{t("cart.total")}</div>

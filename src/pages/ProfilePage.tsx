@@ -55,7 +55,7 @@ const ProfilePage = () => {
         <ProfileActionItem
           icon={<LuClipboardList size={24} />}
           text={t("profile.saleInvoice")}
-          // onClick={() => navigate("/sale-invoice")}
+          onClick={() => navigate("/sale-invoice-history")}
         />
         <ProfileActionItem
           icon={<MdLockOutline size={24} />}

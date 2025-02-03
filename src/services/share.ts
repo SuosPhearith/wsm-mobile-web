@@ -5,7 +5,7 @@ import i18n from "../i18n";
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
 // Reusable API request function with Bearer token
-export const api = async<T> (
+export const api = async <T>(
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
   url: string,
   data: any = null,
@@ -33,6 +33,17 @@ export const api = async<T> (
 
     return response;
   } catch (error: any) {
+    // Ensure error.response exists before accessing status
+    const status = error.response?.status;
+
+    if (status === 401 || status === 403) {
+      console.warn("Unauthorized access. Redirecting to login...");
+
+      // ✅ Clear localStorage and force reload to /login
+      localStorage.clear();
+      window.location.replace("/login"); // ✅ Ensures immediate redirection
+    }
+
     console.error("API Error:", error.response ?? error);
     throw error.response ?? error;
   }
