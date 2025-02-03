@@ -56,9 +56,9 @@ const CartPage = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedCartItems(displayedCartItems);
-    }, 500); 
+    }, 500);
 
-    return () => clearTimeout(handler); 
+    return () => clearTimeout(handler);
   }, [displayedCartItems]);
 
   const {
@@ -71,7 +71,7 @@ const CartPage = () => {
       calculateTotal({
         items: debouncedCartItems.map((item) => ({
           product_id: item.product.id,
-          qty: item.qty,
+          qty: item.qty === 0 ? 1 : item.qty,
         })),
         pos_app_id: window.localStorage.getItem("app") || "",
       }),
