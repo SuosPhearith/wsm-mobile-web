@@ -15,7 +15,7 @@ import {
   UserContactOutline,
 } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
-import { formatDate, priceValue } from "../utils/share";
+import { formatDate, priceValue, priceValueWithCurrency } from "../utils/share";
 import CustomerLocationPopup from "../components/sale/CustomerLocationPopup";
 import {
   Address,
@@ -37,10 +37,14 @@ import Error from "../components/share/Error";
 import { MdError } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { calculateTotal } from "../api/cart";
 
 const SaleOrderPage = () => {
   // Load cart items with quantities from localStorage
   const { t } = useTranslation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
   >([]);
@@ -80,7 +84,6 @@ const SaleOrderPage = () => {
   const { mutate: mOrder, isLoading: lOrder } = useMutation({
     mutationFn: createSaleOrder,
     onSuccess: (data) => {
-      console.log(data)
       window.localStorage.setItem("ordered", JSON.stringify(data) || "{}");
       window.localStorage.removeItem("selectedCustomer");
       window.localStorage.removeItem("cart");
@@ -90,7 +93,7 @@ const SaleOrderPage = () => {
           <>
             <div className="flex justify-center items-start gap-2 text-green-500">
               <FaCheckCircle size={22} />
-              {t('saleOrder.orderSuccess')}
+              {t("saleOrder.orderSuccess")}
             </div>
           </>
         ),
@@ -102,7 +105,7 @@ const SaleOrderPage = () => {
         content: (
           <>
             <div className="text-red-500 flex items-center gap-1">
-              <MdError size={24} /> {t('saleOrder.orderError')}
+              <MdError size={24} /> {t("saleOrder.orderError")}
             </div>
           </>
         ),
@@ -147,8 +150,8 @@ const SaleOrderPage = () => {
       !location
     ) {
       Modal.alert({
-        title: <>{t('saleOrder.filedRequire')}</>,
-        content: <>{t('saleOrder.selectFieldsError')}</>,
+        title: <>{t("saleOrder.filedRequire")}</>,
+        content: <>{t("saleOrder.selectFieldsError")}</>,
         confirmText: "OK",
       });
       return;
@@ -203,14 +206,6 @@ const SaleOrderPage = () => {
     localStorage.getItem("cart") || "[]"
   );
 
-  // Calculate total price
-  const totalPrice = displayedCartItems.reduce((total, product) => {
-    const itemInCart = cartItems.find(
-      (item) => item.product.id === product.product.id
-    );
-    return total + product.product.unit_price * (itemInCart?.qty || 1);
-  }, 0);
-
   // Clear selected customer
   const clearSelectedCustomer = () => {
     setSelectedCustomer(null);
@@ -233,10 +228,39 @@ const SaleOrderPage = () => {
     setVisible3(false);
   };
 
+  const [debouncedCartItems, setDebouncedCartItems] =
+    useState(displayedCartItems);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCartItems(displayedCartItems);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [displayedCartItems]);
+
+  const {
+    data: total,
+    isLoading: lTotal,
+    isError: eTotal,
+  } = useQuery(
+    ["total", debouncedCartItems, selectedCustomer],
+    () =>
+      calculateTotal({
+        items: debouncedCartItems.map((item) => ({
+          product_id: item.product.id,
+          qty: item.qty,
+        })),
+        pos_app_id: window.localStorage.getItem("app") || "",
+        customer_id: selectedCustomer?.id
+      }),
+    { enabled: debouncedCartItems.length > 0 }
+  );
+
   if (isLoading) {
     return <div></div>;
   }
-  if (isError || eAddress) {
+  if (isError || eAddress || eTotal) {
     return <Error />;
   }
 
@@ -244,8 +268,8 @@ const SaleOrderPage = () => {
     if (!localStorage.getItem("selectedCustomer")) {
       Modal.alert({
         title: "Field Require.",
-        content: <>{t('saleOrder.selectCustomerFirst')}</>,
-        confirmText: <>{t('saleOrder.ok')}</>,
+        content: <>{t("saleOrder.selectCustomerFirst")}</>,
+        confirmText: <>{t("saleOrder.ok")}</>,
       });
       return;
     }
@@ -269,7 +293,7 @@ const SaleOrderPage = () => {
     <div className="">
       <div className="fixed top-0 w-full ">
         <NavBar className="bg-white" onBack={() => navigate(-1)}>
-          {t('saleOrder.saleOrderTitle')}
+          {t("saleOrder.saleOrderTitle")}
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
@@ -284,7 +308,7 @@ const SaleOrderPage = () => {
               onClick={() => navigate("/customer")}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">{t('saleOrder.selectCustomer')}</div>
+              <div className="text-base">{t("saleOrder.selectCustomer")}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -324,7 +348,7 @@ const SaleOrderPage = () => {
               onClick={handleOpenLocation}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">{t('saleOrder.selectLocation')}</div>
+              <div className="text-base">{t("saleOrder.selectLocation")}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -368,7 +392,7 @@ const SaleOrderPage = () => {
               onClick={() => setVisible2(true)}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">{t('saleOrder.selectDate')}</div>
+              <div className="text-base">{t("saleOrder.selectDate")}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -390,7 +414,7 @@ const SaleOrderPage = () => {
               onClick={() => setVisible3(true)}
               className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg"
             >
-              <div className="text-base">{t('saleOrder.selectTimeSlot')}</div>
+              <div className="text-base">{t("saleOrder.selectTimeSlot")}</div>
               <div>
                 <EditFill fontSize={18} />
               </div>
@@ -412,21 +436,23 @@ const SaleOrderPage = () => {
             <TextArea
               value={note}
               onChange={(v) => setNote(v)}
-              placeholder={t('saleOrder.enterRemark')}
+              placeholder={t("saleOrder.enterRemark")}
               showCount
               maxLength={100}
             />
           </div>
         </div>
-        <div className="mb-[250px]">
+        <div className="mb-[150px]">
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
-            <div className="text-lg ms-1 font-semibold">{t('saleOrder.summary')}</div>
+            <div className="text-lg ms-1 font-semibold">
+              {t("saleOrder.summary")}
+            </div>
           </div>
           <div className="bg-white rounded-lg mt-2 p-3">
             {displayedCartItems.length === 0 ? (
               <div className="text-center text-gray-500">
-                {t('saleOrder.emptyCart')}
+                {t("saleOrder.emptyCart")}
               </div>
             ) : (
               displayedCartItems.map((product) => {
@@ -459,20 +485,54 @@ const SaleOrderPage = () => {
               })
             )}
           </div>
+          <div className="mt-5">
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Subtotal:</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.subtotal)}
+              </div>
+            </div>
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Discount:</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.discount)}
+              </div>
+            </div>
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Grand Total ({total?.currency}):</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.discount)}
+              </div>
+            </div>
+            {total?.second_grand_total && (
+              <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+                <div className="text-base">Grand Total ({total?.second_currency}):</div>
+                <div className="text-base">
+                  {lTotal ? (
+                    <div>...</div>
+                  ) : (
+                    priceValueWithCurrency(
+                      total?.second_grand_total,
+                      total?.second_currency
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
       <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
         <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-base">Subtotal:</div>
-          <div className="text-base">{priceValue(totalPrice)}</div>
-        </div>
-        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-base">Discount:</div>
-          <div className="text-base">{priceValue(0)}</div>
-        </div>
-        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-lg font-semibold">{t("saleInvoice.total")}</div>
-          <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
+          <div className="text-lg font-semibold">Grand Total</div>
+          <div className="text-lg font-bold">
+            {lTotal ? (
+              <div>...</div>
+            ) : (
+              priceValueWithCurrency(total?.grand_total, total?.currency)
+            )}
+          </div>
         </div>
         <div className="w-full flex gap-4">
           <button

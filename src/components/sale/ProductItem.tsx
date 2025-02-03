@@ -36,21 +36,30 @@ const ProductItem = ({ item }: Props) => {
 
       {/* Product Name */}
       <div className="flex items-center justify-between mt-2">
-        <div><span className="text-blue-600">Stock:</span> <span className={`${stock == stockAlert
-              ? "text-red-700"
-              : stock <= stockAlert
-              ? "text-yellow-600"
-              : ""}`}>{stock}</span></div>
+        <div>
+          <span className="text-blue-600">Stock:</span>{" "}
+          <span
+            className={`${
+              stock == 0
+                ? "text-red-700"
+                : stock <= stockAlert
+                ? "text-yellow-600"
+                : ""
+            }`}
+          >
+            {stock}
+          </span>
+        </div>
         <div
           className={`flex justify-center items-center ${
-            stock == stockAlert
+            stock == 0
               ? "text-red-700 bg-red-200"
               : stock <= stockAlert
               ? "text-yellow-600 bg-yellow-200"
               : ""
           } rounded-lg px-2`}
         >
-          {stock == stockAlert
+          {stock == 0
             ? "Out of Stock"
             : stock <= stockAlert
             ? "Low Stock"

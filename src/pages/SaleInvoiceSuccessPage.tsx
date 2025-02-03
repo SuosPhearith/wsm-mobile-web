@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NotFoundPage from "./NoteFoundPage";
 import { NavBar } from "antd-mobile";
+import { formatDateTime } from "../utils/share";
 
 interface SaleInvoiceItem {
   id: number;
@@ -35,6 +36,9 @@ interface SaleInvoiceItem {
 
 const SaleInvoiceSuccessPage = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [invoice] = useState(
     JSON.parse(window.localStorage.getItem("ordered") || "{}")
   );
@@ -51,7 +55,14 @@ const SaleInvoiceSuccessPage = () => {
         <NavBar
           className="bg-white"
           onBack={() => handleBack()}
-          right={<div className="text-primary text-base" onClick={() => handleBack()}>Print</div>}
+          right={
+            <div
+              className="text-primary text-base"
+              onClick={() => handleBack()}
+            >
+              Print
+            </div>
+          }
         >
           Invoice
         </NavBar>
@@ -134,15 +145,13 @@ const SaleInvoiceSuccessPage = () => {
           </div>
 
           <p className="text-gray-500 text-xs text-center mt-4">
-            Created At: {new Date(invoice.created_at).toLocaleString()} |
-            Updated At: {new Date(invoice.updated_at).toLocaleString()}
+            Created At: {formatDateTime(invoice?.created_at || "")}
           </p>
           <p className="text-gray-500 text-xs text-center mt-4">
             {invoice.pos_app_id}
           </p>
         </div>
       </div>
-      
     </div>
   );
 };

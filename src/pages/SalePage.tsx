@@ -20,7 +20,7 @@ import defaultImage from "../assets/imgaes/logo.png";
 import { useTranslation } from "react-i18next";
 
 const SalePage = () => {
-  const { t } = useTranslation(); // Use 'sale' namespace for translations
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [cId, setCId] = useState("");

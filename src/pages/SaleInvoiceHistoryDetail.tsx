@@ -1,59 +1,37 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import NotFoundPage from "./NoteFoundPage";
+import { useNavigate, useParams } from "react-router-dom";
 import { NavBar } from "antd-mobile";
+import { useQuery } from "react-query";
+import { getSaleInvoiceHistoryDetail } from "../api/profile";
+import Error from "../components/share/Error";
 import { formatDateTime } from "../utils/share";
+import { useEffect } from "react";
 
-interface SaleInvoiceItem {
-  id: number;
-  order_no: string;
-  product_id: number;
-  pos_app_id: string;
-  product_detail: {
-    id: number;
-    name: string;
-    name_kh: string;
-    thumbnail: string;
-    unit_price: number;
-    uom_id: number;
-    uom: {
-      id: number;
-      name: string;
-      name_kh: string;
-      description: string | null;
-      description_kh: string | null;
-      wholesale_id: number | null;
-      created_at: string; // ISO 8601 format
-      updated_at: string; // ISO 8601 format
-    };
-  };
-  qty: number;
-  uom: string;
-  note: string;
-  subtotal: number;
-  grand_total: number;
-}
-
-const SaleOrderSuccessPage = () => {
+const SaleInvoiceHistoryDetail = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const [invoice] = useState(() => {
-    try {
-      return JSON.parse(window.localStorage.getItem("ordered") || "{}");
-    } catch {
-      return {};
-    }
-  });
+
+  // Fetch detail
+  const {
+    data: invoice,
+    isLoading,
+    isError,
+  } = useQuery("invoiceDetail", () => getSaleInvoiceHistoryDetail(id || ""));
 
   const handleBack = () => {
     window.localStorage.removeItem("ordered");
-    navigate("/sale");
+    navigate("/sale-invoice-history");
   };
 
-  if (!invoice.order_no) {
-    return <NotFoundPage />;
+  if (isError) {
+    return <Error />;
+  }
+
+  if (isLoading) {
+    return <div className="flex justify-center p-10">Loading...</div>;
   }
 
   return (
@@ -78,27 +56,27 @@ const SaleOrderSuccessPage = () => {
       <div className="bg-gray-100 min-h-screen p-6">
         <div className="bg-white shadow-lg rounded-lg max-w-3xl w-full p-6">
           <div className="text-center border-b pb-4 mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">Sale Order</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Sale Invoice</h1>
             <p className="text-sm text-gray-500">
-              Order No: {invoice.order_no}
+              Order No: {invoice?.order_no}
             </p>
           </div>
 
           <div className="mb-4">
             <p className="text-gray-600">
-              <strong>Customer ID:</strong> {invoice.customer_id || "N/A"}
+              <strong>Customer ID:</strong> {invoice?.customer.name || "N/A"}
             </p>
             <p className="text-gray-600">
-              <strong>Status:</strong> {invoice.status}
+              <strong>Status:</strong> {invoice?.status}
             </p>
             <p className="text-gray-600">
-              <strong>Order From:</strong> {invoice.order_from}
+              <strong>Order From:</strong> {invoice?.order_from}
             </p>
             <p className="text-gray-600">
-              <strong>Transaction Ref:</strong> {invoice.trx_ref}
+              <strong>Transaction Ref:</strong> {invoice?.trx_ref}
             </p>
             <p className="text-gray-600">
-              <strong>Remark:</strong> {invoice.remark || ""}
+              <strong>Remark:</strong> {invoice?.remark || ""}
             </p>
           </div>
 
@@ -107,7 +85,7 @@ const SaleOrderSuccessPage = () => {
               Order Items
             </h2>
             <div className="bg-gray-50 p-4 rounded-lg">
-              {invoice.order_items.map((item: SaleInvoiceItem) => (
+              {invoice?.order_items.map((item) => (
                 <div
                   key={item.id}
                   className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2 last:border-none last:pb-0 last:mb-0"
@@ -135,18 +113,18 @@ const SaleOrderSuccessPage = () => {
             <div className="text-gray-600 space-y-2">
               <p className="flex justify-between">
                 <span>Subtotal:</span>{" "}
-                <span>${invoice.subtotal.toFixed(2)}</span>
+                <span>${invoice?.subtotal.toFixed(2)}</span>
               </p>
               <p className="flex justify-between">
                 <span>Discount:</span>{" "}
-                <span>${invoice.discount.toFixed(2)}</span>
+                <span>${invoice?.discount.toFixed(2)}</span>
               </p>
               <p className="flex justify-between">
-                <span>Tax:</span> <span>${invoice.tax.toFixed(2)}</span>
+                <span>Tax:</span> <span>${invoice?.tax.toFixed(2)}</span>
               </p>
               <p className="flex justify-between font-bold text-gray-800">
                 <span>Grand Total:</span>{" "}
-                <span>${invoice.grand_total.toFixed(2)}</span>
+                <span>${invoice?.grand_total.toFixed(2)}</span>
               </p>
             </div>
           </div>
@@ -155,7 +133,7 @@ const SaleOrderSuccessPage = () => {
             Created At: {formatDateTime(invoice?.created_at || "")}
           </p>
           <p className="text-gray-500 text-xs text-center mt-4">
-            {invoice.pos_app_id}
+            {invoice?.pos_app_id}
           </p>
         </div>
       </div>
@@ -163,4 +141,4 @@ const SaleOrderSuccessPage = () => {
   );
 };
 
-export default SaleOrderSuccessPage;
+export default SaleInvoiceHistoryDetail;

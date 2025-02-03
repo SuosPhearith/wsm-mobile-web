@@ -36,7 +36,7 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
   const [note, setNote] = useState("");
 
   // Create
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createCustomerAddress,
     onSuccess: () => {},
     onError: (error) => {
@@ -122,25 +122,35 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
   };
 
   // Confirm the selected location
-  const handleConfirm = () => {
-    if (!customer?.id) {
-      return;
+  const handleConfirm = async () => {
+    try {
+      if (!customer?.id) {
+        return;
+      }
+
+      const data: Address = {
+        lat: selectedLat,
+        lng: selectedLng,
+        address_name: selectedAddress || "No Provide",
+        label: selectedLabel,
+        note: note,
+        customer_id: customer.id,
+      };
+      const res = await mutateAsync(data) as { id: number };
+      if (!res || !res.id) {
+        throw new Error("Invalid response from API");
+      }
+      const updatedData = { ...data, id: res.id };
+
+      setLocation(updatedData);
+      setNote("");
+      SetSelectedLabel("Warehouse");
+      setSelectedAddress("");
+      setCustomer(undefined);
+      setVisible(false);
+    } catch (error) {
+      console.error("Mutation error:", error);
     }
-    const data: Address = {
-      lat: selectedLat,
-      lng: selectedLng,
-      address_name: selectedAddress || "No Provide",
-      label: selectedLabel,
-      note: note,
-      customer_id: customer?.id,
-    };
-    mutate(data);
-    setLocation(data);
-    setNote("");
-    SetSelectedLabel("Warehouse");
-    setSelectedAddress("");
-    setCustomer(undefined);
-    setVisible(false);
   };
 
   return (

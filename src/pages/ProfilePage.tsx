@@ -50,7 +50,7 @@ const ProfilePage = () => {
         <ProfileActionItem
           icon={<LuClipboardList size={24} />}
           text={t("profile.saleOrder")}
-          // onClick={() => navigate("/sale-order")}
+          onClick={() => navigate("/sale-order-history")}
         />
         <ProfileActionItem
           icon={<LuClipboardList size={24} />}

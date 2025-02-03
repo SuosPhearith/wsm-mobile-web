@@ -20,8 +20,11 @@ import { MdError } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 
 const CustomerPage = () => {
-  const { t } = useTranslation(); // Use "customer" namespace
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [searchKey, setSearchKey] = useState("");
   const [visible, setVisible] = useState(false);
@@ -99,7 +102,7 @@ const CustomerPage = () => {
       setCustomer(data);
     },
     onError: (error: { data: { message: string } }) => {
-      if(error.data.message){
+      if (error.data.message) {
         Dialog.alert({
           content: (
             <div className="text-red-500 flex items-center gap-1">

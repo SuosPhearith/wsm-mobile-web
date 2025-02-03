@@ -32,6 +32,9 @@ export interface PosApp {
 }
 
 const SelectedAppPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [posApps, setPosApps] = useState<PosApp[]>([]);
   const [selectedApp, setSelectedApp] = useState<{
     id: string;
@@ -54,8 +57,15 @@ const SelectedAppPage = () => {
   }, []);
 
   // Set only one selection at a time
-  const handleSelection = (id: string, name: string, currency: string, warehouse: string) => {
-    setSelectedApp(selectedApp?.id === id ? null : { id, name, currency, warehouse });
+  const handleSelection = (
+    id: string,
+    name: string,
+    currency: string,
+    warehouse: string
+  ) => {
+    setSelectedApp(
+      selectedApp?.id === id ? null : { id, name, currency, warehouse }
+    );
   };
 
   const navigate = useNavigate();
@@ -77,7 +87,10 @@ const SelectedAppPage = () => {
             window.localStorage.setItem("app", selectedApp.id);
             window.localStorage.setItem("app-name", selectedApp.name);
             window.localStorage.setItem("currency", selectedApp.currency);
-            window.localStorage.setItem("warehouse", selectedApp.warehouse || "");
+            window.localStorage.setItem(
+              "warehouse",
+              selectedApp.warehouse || ""
+            );
             navigate("/sale");
           },
         });
@@ -106,7 +119,12 @@ const SelectedAppPage = () => {
             <div
               key={app.id}
               onClick={() =>
-                handleSelection(app.id, app.name, app.main_currency, app.warehouse?.name || "")
+                handleSelection(
+                  app.id,
+                  app.name,
+                  app.main_currency,
+                  app.warehouse?.name || ""
+                )
               }
               className={`p-6 border rounded-lg transition flex flex-col cursor-pointer ${
                 selectedApp?.id === app.id

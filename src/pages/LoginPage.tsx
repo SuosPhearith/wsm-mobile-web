@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import oflImage from "../assets/imgaes/ofl.svg";
 import { FaLock, FaUser } from "react-icons/fa";
@@ -6,6 +6,9 @@ import { useMutation } from "react-query";
 import { loginReq, meReq } from "../api/auth";
 
 const LoginPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -14,7 +17,7 @@ const LoginPage = () => {
   const { mutate: MLogin, isLoading: lLogin } = useMutation({
     mutationFn: loginReq,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err:any) => {
+    onError: (err: any) => {
       setError(err.response?.data?.message || "Invalid Credential!");
       console.log(err);
     },

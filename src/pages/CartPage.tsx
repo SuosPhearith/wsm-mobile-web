@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, NavBar, Popup, Stepper, Toast } from "antd-mobile";
+import { Dialog, DotLoading, NavBar, Popup, Stepper, Toast } from "antd-mobile";
 import { useNavigate } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -8,9 +8,15 @@ import defaultImage from "../assets/imgaes/logo.png";
 import { priceValue } from "../utils/share";
 import { FiPlusCircle } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import { useQuery } from "react-query";
+import { calculateTotal } from "../api/cart";
+import Error from "../components/share/Error";
 
 const CartPage = () => {
-  const { t } = useTranslation(); // Use "cart" namespace
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  const { t } = useTranslation();
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
   >([]);
@@ -44,12 +50,33 @@ const CartPage = () => {
     localStorage.getItem("cart") || "[]"
   );
 
-  const totalPrice = displayedCartItems.reduce((total, product) => {
-    const itemInCart = cartItems.find(
-      (item) => item.product.id === product.product.id
-    );
-    return total + product.product.unit_price * (itemInCart?.qty || 1);
-  }, 0);
+  const [debouncedCartItems, setDebouncedCartItems] =
+    useState(displayedCartItems);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCartItems(displayedCartItems);
+    }, 500); 
+
+    return () => clearTimeout(handler); 
+  }, [displayedCartItems]);
+
+  const {
+    data: total,
+    isLoading,
+    isError,
+  } = useQuery(
+    ["total", debouncedCartItems],
+    () =>
+      calculateTotal({
+        items: debouncedCartItems.map((item) => ({
+          product_id: item.product.id,
+          qty: item.qty,
+        })),
+        pos_app_id: window.localStorage.getItem("app") || "",
+      }),
+    { enabled: debouncedCartItems.length > 0 }
+  );
 
   const cartValue = () => {
     try {
@@ -200,6 +227,10 @@ const CartPage = () => {
     });
   };
 
+  if (isError) {
+    return <Error />;
+  }
+
   return (
     <>
       <div className="fixed top-0 w-full">
@@ -269,7 +300,9 @@ const CartPage = () => {
         {/* Total Price Section */}
         <div className="flex mt-4  p-4 pt-0 rounded-xl justify-between items-center">
           <div className="text-lg font-semibold">{t("cart.total")}</div>
-          <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
+          <div className="text-lg font-bold">
+            {!isLoading ? priceValue(total?.grand_total) : <DotLoading />}
+          </div>
         </div>
         <div className="w-full flex gap-4">
           <button

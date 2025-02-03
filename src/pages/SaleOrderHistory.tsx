@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { useInfiniteQuery } from "react-query";
 import { FaFileInvoiceDollar } from "react-icons/fa";
 import Error from "../components/share/Error";
-import { getSaleInvoiceHistory } from "../api/profile";
+import { getSaleOrderHistory } from "../api/profile";
 import {
   formatDateTimeWithToday,
   priceValueWithCurrency,
 } from "../utils/share";
 import { LuRefreshCcw } from "react-icons/lu";
 
-const SaleInvoiceHistory = () => {
+const SaleOrderHistory = () => {
   const navigate = useNavigate();
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,8 +30,8 @@ const SaleInvoiceHistory = () => {
     isError: eInvoice,
     refetch,
   } = useInfiniteQuery(
-    ["saleInvoce", searchKey],
-    ({ pageParam = 1 }) => getSaleInvoiceHistory(pageParam, "20", searchKey),
+    ["saleOrder", searchKey],
+    ({ pageParam = 1 }) => getSaleOrderHistory(pageParam, "20", searchKey),
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.next_page_url) {
@@ -99,7 +99,7 @@ const SaleInvoiceHistory = () => {
             </div>
           }
         >
-          Sale Invoice History
+          Sale Order History
         </NavBar>
       </div>
       <div className="h-[50px]"></div>
@@ -136,7 +136,7 @@ const SaleInvoiceHistory = () => {
                   className="bg-white p-2 flex items-center justify-between rounded-lg gap-3 mt-2"
                   key={item.order_no}
                   onClick={() =>
-                    navigate(`/sale-invoice-history/${item.order_no}`)
+                    navigate(`/sale-order-history/${item.order_no}`)
                   }
                 >
                   <div className="flex items-center gap-3">
@@ -188,4 +188,4 @@ const SaleInvoiceHistory = () => {
   );
 };
 
-export default SaleInvoiceHistory;
+export default SaleOrderHistory;

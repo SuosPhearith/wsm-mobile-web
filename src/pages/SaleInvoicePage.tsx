@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  Modal,
-  NavBar,
-  Popup,
-  TextArea,
-  Toast,
-} from "antd-mobile";
+import { Dialog, Modal, NavBar, Popup, TextArea, Toast } from "antd-mobile";
 import { CloseCircleOutline, EditFill, FileOutline } from "antd-mobile-icons";
 import { useNavigate } from "react-router-dom";
-import { priceValue } from "../utils/share";
+import { priceValue, priceValueWithCurrency } from "../utils/share";
 import { Customer, Product, SaleInvoiceInterface } from "../api/type";
 import defaultAvatar from "../assets/imgaes/profile2.jpg";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { createSaleInvoice } from "../api/sale";
 import { MdError } from "react-icons/md";
 import { FaCheckCircle, FaStore, FaTruck } from "react-icons/fa";
@@ -20,9 +13,14 @@ import { useTranslation } from "react-i18next";
 import { LuBox } from "react-icons/lu";
 import { FiDollarSign, FiMapPin, FiTag } from "react-icons/fi";
 import { PosApp } from "./SelectedAppPage";
+import { calculateTotal } from "../api/cart";
+import Error from "../components/share/Error";
 
 const SaleInvoicePage = () => {
   const { t } = useTranslation(); // Use "saleInvoice" namespace
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [posApps, setPosApps] = useState<PosApp[]>([]);
   const [cartItems, setCartItems] = useState<
     { product: Product; qty: number }[]
@@ -50,13 +48,6 @@ const SaleInvoicePage = () => {
   const displayedCartItems: { product: Product; qty: number }[] = JSON.parse(
     localStorage.getItem("cart") || "[]"
   );
-
-  const totalPrice = displayedCartItems.reduce((total, product) => {
-    const itemInCart = cartItems.find(
-      (item) => item.product.id === product.product.id
-    );
-    return total + product.product.unit_price * (itemInCart?.qty || 1);
-  }, 0);
 
   const clearSelectedCustomer = () => {
     setSelectedCustomer(null);
@@ -197,6 +188,39 @@ const SaleInvoicePage = () => {
     }
   };
 
+  const [debouncedCartItems, setDebouncedCartItems] =
+    useState(displayedCartItems);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCartItems(displayedCartItems);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [displayedCartItems]);
+
+  const {
+    data: total,
+    isLoading: lTotal,
+    isError: eTotal,
+  } = useQuery(
+    ["total", debouncedCartItems, selectedCustomer],
+    () =>
+      calculateTotal({
+        items: debouncedCartItems.map((item) => ({
+          product_id: item.product.id,
+          qty: item.qty,
+        })),
+        pos_app_id: window.localStorage.getItem("app") || "",
+        customer_id: selectedCustomer?.id
+      }),
+    { enabled: debouncedCartItems.length > 0 }
+  );
+
+  if (eTotal) {
+    return <Error />;
+  }
+
   return (
     <div>
       <div className="fixed top-0 w-full">
@@ -278,7 +302,7 @@ const SaleInvoicePage = () => {
             />
           </div>
         </div>
-        <div className="mb-[250px]">
+        <div className="mb-[150px]">
           <div className="flex items-center mt-5">
             <FileOutline fontSize={20} />
             <div className="text-lg ms-1 font-semibold">
@@ -321,20 +345,55 @@ const SaleInvoicePage = () => {
               })
             )}
           </div>
+          <div className="mt-5">
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Subtotal:</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.subtotal)}
+              </div>
+            </div>
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Discount:</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.discount)}
+              </div>
+            </div>
+            <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+              <div className="text-base">Grand Total ({total?.currency}):</div>
+              <div className="text-base">
+                {lTotal ? <div>...</div> : priceValue(total?.discount)}
+              </div>
+            </div>
+            {total?.second_grand_total && (
+              <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+                <div className="text-base">
+                  Grand Total ({total?.second_currency}):
+                </div>
+                <div className="text-base">
+                  {lTotal ? (
+                    <div>...</div>
+                  ) : (
+                    priceValueWithCurrency(
+                      total?.second_grand_total,
+                      total?.second_currency
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
-        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-base">Subtotal:</div>
-          <div className="text-base">{priceValue(totalPrice)}</div>
-        </div>
-        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-base">Discount:</div>
-          <div className="text-base">{priceValue(0)}</div>
-        </div>
-        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-          <div className="text-lg font-semibold">{t("saleInvoice.total")}</div>
-          <div className="text-lg font-bold">{priceValue(totalPrice)}</div>
+      <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+          <div className="text-lg font-semibold">Grand Total</div>
+          <div className="text-lg font-bold">
+            {lTotal ? (
+              <div>...</div>
+            ) : (
+              priceValueWithCurrency(total?.grand_total, total?.currency)
+            )}
+          </div>
         </div>
         <div className="w-full flex gap-4">
           <button

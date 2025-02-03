@@ -20,6 +20,9 @@ import SaleOrderSuccessPage from "./pages/SaleOrderSuccessPage";
 import TestPage from "./pages/TestPage";
 import SelectedAppPage from "./pages/SelectedAppPage";
 import SaleInvoiceHistory from "./pages/SaleInvoiceHistory";
+import SaleInvoiceHistoryDetail from "./pages/SaleInvoiceHistoryDetail";
+import SaleOrderHistory from "./pages/SaleOrderHistory";
+import SaleOrderHistoryDetail from "./pages/SaleOrderHistoryDetail";
 
 function App() {
   return (
@@ -59,6 +62,9 @@ function App() {
           <Route path="/test" element={<TestPage />} />
           <Route path="/seleted-app" element={<SelectedAppPage />} />
           <Route path="/sale-invoice-history" element={<SaleInvoiceHistory />} />
+          <Route path="/sale-invoice-history/:id" element={<SaleInvoiceHistoryDetail />} />
+          <Route path="/sale-order-history" element={<SaleOrderHistory />} />
+          <Route path="/sale-order-history/:id" element={<SaleOrderHistoryDetail />} />
         </Route>
 
         {/* Public Page */}
