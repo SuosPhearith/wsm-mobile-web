@@ -23,14 +23,15 @@ export const formatDateTime = (isoString: string): string => {
 
   const dd = String(date.getDate()).padStart(2, "0");
   const mm = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
-  const yy = String(date.getFullYear()).slice(-2);
+  const yyyy = String(date.getFullYear()); // Full year (4 digits)
 
   const H = String(date.getHours()).padStart(2, "0");
   const M = String(date.getMinutes()).padStart(2, "0");
   const S = String(date.getSeconds()).padStart(2, "0");
 
-  return `${dd}-${mm}-${yy} ${H}:${M}:${S}`;
+  return `${dd}-${mm}-${yyyy} ${H}:${M}:${S}`;
 };
+
 
 export const formatDateTimeWithToday = (isoString: string): string => {
   const date = new Date(isoString);

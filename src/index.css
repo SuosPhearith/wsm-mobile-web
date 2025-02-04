@@ -23,3 +23,23 @@
 .safe-area-inset-bottom {
     margin-top: 2.5rem !important;
 }
+
+/* //::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+.custom-stepper .adm-stepper-minus,  /* Minus button */
+.custom-stepper .adm-stepper-plus { /* Plus button */
+  background-color: #32B8E2 !important; /* Button background */
+  color: white !important; /* Icon color */
+  border-radius: 8px !important; /* Rounded corners */
+  width: 30px !important; /* Custom button width */
+  height: 30px !important; /* Custom button height */
+  font-size: 20px !important; /* Adjust icon size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important; /* Remove border */
+}
+
+.custom-stepper .adm-input-element {
+    font-size: 16px;
+}

@@ -18,6 +18,7 @@ import { Product } from "../api/type";
 import { priceValue } from "../utils/share";
 import defaultImage from "../assets/imgaes/logo.png";
 import { useTranslation } from "react-i18next";
+import Error from "../components/share/Error";
 
 const SalePage = () => {
   const { t } = useTranslation();
@@ -155,7 +156,7 @@ const SalePage = () => {
 
   // Loading and error handling
   if (lCategory) return <p></p>;
-  if (eCategory || eProduct) return <p>{t("sale.categoriesError")}</p>;
+  if (eCategory || eProduct) return <Error/>;
 
   return (
     <div>
@@ -245,25 +246,23 @@ const SalePage = () => {
           {t("sale.noMoreProducts")}
         </InfiniteScroll>
 
-          <FloatingBubble
-            onClick={() => navigate("/cart")}
-            axis="x"
-            magnetic="x"
-            style={{
-              "--initial-position-bottom": "64px",
-              "--initial-position-right": "24px",
-              "--edge-distance": "24px",
-            }}
+        <FloatingBubble
+          onClick={() => navigate("/cart")}
+          axis="x"
+          magnetic="x"
+          style={{
+            "--initial-position-bottom": "64px",
+            "--initial-position-right": "24px",
+            "--edge-distance": "24px",
+          }}
+        >
+          <Badge
+            color="white"
+            content={<div className="text-black">{cartBadge().toString()}</div>}
           >
-            <Badge
-              color="white"
-              content={
-                <div className="text-black">{cartBadge().toString()}</div>
-              }
-            >
-              <BsCart2 fontSize={22} className="me-1" />
-            </Badge>
-          </FloatingBubble>
+            <BsCart2 fontSize={22} className="me-1" />
+          </Badge>
+        </FloatingBubble>
 
         <Popup
           visible={visible}
@@ -272,18 +271,18 @@ const SalePage = () => {
           bodyStyle={{
             borderTopLeftRadius: "8px",
             borderTopRightRadius: "8px",
-            minHeight: "35vh",
+            minHeight: "fit-content",
             background: "#f3f4f6",
           }}
         >
           {/* Popup Content */}
-          <div className="p-4 h-full flex flex-col justify-center items-center">
+          <div className="p-4 h-full flex flex-col justify-between items-center">
             <div className="text-lg font-semibold mb-2">
               {t("sale.selectQuantity")}
             </div>
-            <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
-              <div className="flex">
-                <div className="min-w-16 h-16 me-2 rounded-xl">
+            <div className="flex bg-white w-full items-center rounded-xl gap-2 p-2 ">
+              <div className="flex justify-between h-full gap-2">
+                <div className="min-h-full w-[96px]">
                   <img
                     src={
                       product?.thumbnail
@@ -296,17 +295,20 @@ const SalePage = () => {
                     className="w-full h-full object-contain rounded-xl"
                   />
                 </div>
-                <div className="flex flex-col justify-around items-start">
-                  <div className="text-base font-semibold">{product?.name}</div>
-                  <div>
-                    <div className="text-base">
-                      {priceValue(product?.unit_price)}
-                    </div>
+              </div>
+              <div className="flex flex-col justify-around items-start">
+                <div className="text-sm line-clamp-2">{product?.name}</div>
+                <div>
+                  <div className="text-base font-bold">
+                    {priceValue(product?.unit_price)}
                   </div>
                 </div>
               </div>
-              <div>
+            </div>
+            <div className="h-[120px]">
+              <div className="mt-2  p-2 rounded-lg">
                 <Stepper
+                className="custom-stepper"
                   defaultValue={1}
                   min={1}
                   value={qty}
@@ -316,18 +318,13 @@ const SalePage = () => {
                 />
               </div>
             </div>
-            <div className="flex mt-2 w-full items-center justify-between p-2 rounded-xl">
-              <div className="text-base">{t("sale.total")}</div>
-              <div className="text-base">
-                {priceValue((product?.unit_price ?? 0) * qty)}
-              </div>
-            </div>
             <div className="absolute bottom-0 px-4 w-full mb-3">
               <button
                 className="p-3 bg-primary w-full rounded-2xl text-lg font-bold text-white"
                 onClick={() => handleSubmitAddToCart(product, qty)}
               >
-                {t("sale.addToCart")}
+                {t("sale.addToCart")} -{" "}
+                {priceValue((product?.unit_price ?? 0) * qty)}
               </button>
             </div>
           </div>

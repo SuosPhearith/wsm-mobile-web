@@ -359,9 +359,9 @@ const SaleInvoicePage = () => {
               </div>
             </div>
             <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-              <div className="text-base">Grand Total ({total?.currency}):</div>
-              <div className="text-base">
-                {lTotal ? <div>...</div> : priceValue(total?.discount)}
+              <div className="text-lg font-semibold">Grand Total:</div>
+              <div className="text-lg font-semibold">
+                {lTotal ? <div>...</div> : priceValue(total?.grand_total)}
               </div>
             </div>
             {total?.second_grand_total && (

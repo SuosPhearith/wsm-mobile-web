@@ -3,7 +3,7 @@ import { NavBar } from "antd-mobile";
 import { useQuery } from "react-query";
 import { getSaleInvoiceHistoryDetail } from "../api/profile";
 import Error from "../components/share/Error";
-import { formatDateTime } from "../utils/share";
+import { formatDateTime, priceValueWithCurrency } from "../utils/share";
 import { useEffect } from "react";
 
 const SaleInvoiceHistoryDetail = () => {
@@ -95,11 +95,11 @@ const SaleInvoiceHistoryDetail = () => {
                       {item.product_detail.name}
                     </p>
                     <p className="text-gray-500 text-sm">
-                      {item.qty} x ${item.product_detail.unit_price.toFixed(2)}
+                      {item.qty} x {priceValueWithCurrency(item.product_detail.unit_price, invoice.currency)}
                     </p>
                   </div>
                   <p className="text-gray-800 font-semibold">
-                    ${item.grand_total.toFixed(2)}
+                  {priceValueWithCurrency(item.grand_total, invoice.currency)}
                   </p>
                 </div>
               ))}
@@ -113,19 +113,30 @@ const SaleInvoiceHistoryDetail = () => {
             <div className="text-gray-600 space-y-2">
               <p className="flex justify-between">
                 <span>Subtotal:</span>{" "}
-                <span>${invoice?.subtotal.toFixed(2)}</span>
+                <span>{priceValueWithCurrency(invoice?.subtotal, invoice?.currency)}</span>
               </p>
               <p className="flex justify-between">
                 <span>Discount:</span>{" "}
-                <span>${invoice?.discount.toFixed(2)}</span>
+                <span>{priceValueWithCurrency(invoice?.discount, invoice?.currency)}</span>
               </p>
               <p className="flex justify-between">
-                <span>Tax:</span> <span>${invoice?.tax.toFixed(2)}</span>
+                <span>Tax:</span> <span>{priceValueWithCurrency(invoice?.tax, invoice?.currency)}</span>
               </p>
               <p className="flex justify-between font-bold text-gray-800">
                 <span>Grand Total:</span>{" "}
-                <span>${invoice?.grand_total.toFixed(2)}</span>
+                <span>{priceValueWithCurrency(invoice?.grand_total, invoice?.currency)}</span>
               </p>
+              {invoice?.second_grand_total && (
+                <p className="flex justify-between text-gray-800">
+                  <span>Grand Total ({invoice?.second_currency}):</span>{" "}
+                  <span>
+                    {priceValueWithCurrency(
+                      invoice?.second_grand_total,
+                      invoice?.second_currency
+                    )}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 

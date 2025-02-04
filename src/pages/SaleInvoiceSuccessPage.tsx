@@ -2,53 +2,31 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NotFoundPage from "./NoteFoundPage";
 import { NavBar } from "antd-mobile";
-import { formatDateTime } from "../utils/share";
-
-interface SaleInvoiceItem {
-  id: number;
-  order_no: string;
-  product_id: number;
-  pos_app_id: string;
-  product_detail: {
-    id: number;
-    name: string;
-    name_kh: string;
-    thumbnail: string;
-    unit_price: number;
-    uom_id: number;
-    uom: {
-      id: number;
-      name: string;
-      name_kh: string;
-      description: string | null;
-      description_kh: string | null;
-      wholesale_id: number | null;
-      created_at: string; // ISO 8601 format
-      updated_at: string; // ISO 8601 format
-    };
-  };
-  qty: number;
-  uom: string;
-  note: string;
-  subtotal: number;
-  grand_total: number;
-}
+import { formatDateTime, priceValueWithCurrency } from "../utils/share";
+import { Order } from "../api/profile";
 
 const SaleInvoiceSuccessPage = () => {
   const navigate = useNavigate();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const [invoice] = useState(
-    JSON.parse(window.localStorage.getItem("ordered") || "{}")
-  );
+  const [invoice] = useState<Order>(() => {
+    try {
+      return JSON.parse(window.localStorage.getItem("ordered") || "{}");
+    } catch {
+      return {};
+    }
+  });
+
   const handleBack = () => {
     window.localStorage.removeItem("ordered");
     navigate("/sale");
   };
+
   if (!invoice.order_no) {
     return <NotFoundPage />;
   }
+
   return (
     <div>
       <div className="fixed top-0 w-full">
@@ -100,7 +78,7 @@ const SaleInvoiceSuccessPage = () => {
               Order Items
             </h2>
             <div className="bg-gray-50 p-4 rounded-lg">
-              {invoice.order_items.map((item: SaleInvoiceItem) => (
+              {invoice.order_items.map((item) => (
                 <div
                   key={item.id}
                   className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2 last:border-none last:pb-0 last:mb-0"
@@ -110,11 +88,15 @@ const SaleInvoiceSuccessPage = () => {
                       {item.product_detail.name}
                     </p>
                     <p className="text-gray-500 text-sm">
-                      {item.qty} x ${item.product_detail.unit_price.toFixed(2)}
+                      {item.qty} x{" "}
+                      {priceValueWithCurrency(
+                        item.product_detail.unit_price,
+                        invoice.currency
+                      )}
                     </p>
                   </div>
                   <p className="text-gray-800 font-semibold">
-                    ${item.grand_total.toFixed(2)}
+                    {priceValueWithCurrency(item.grand_total, invoice.currency)}
                   </p>
                 </div>
               ))}
@@ -128,19 +110,42 @@ const SaleInvoiceSuccessPage = () => {
             <div className="text-gray-600 space-y-2">
               <p className="flex justify-between">
                 <span>Subtotal:</span>{" "}
-                <span>${invoice.subtotal.toFixed(2)}</span>
+                <span>
+                  {priceValueWithCurrency(invoice.subtotal, invoice.currency)}
+                </span>
               </p>
               <p className="flex justify-between">
                 <span>Discount:</span>{" "}
-                <span>${invoice.discount.toFixed(2)}</span>
+                <span>
+                  {priceValueWithCurrency(invoice.discount, invoice.currency)}
+                </span>
               </p>
               <p className="flex justify-between">
-                <span>Tax:</span> <span>${invoice.tax.toFixed(2)}</span>
+                <span>Tax:</span>{" "}
+                <span>
+                  {priceValueWithCurrency(invoice.tax, invoice.currency)}
+                </span>
               </p>
               <p className="flex justify-between font-bold text-gray-800">
                 <span>Grand Total:</span>{" "}
-                <span>${invoice.grand_total.toFixed(2)}</span>
+                <span>
+                  {priceValueWithCurrency(
+                    invoice.grand_total,
+                    invoice.currency
+                  )}
+                </span>
               </p>
+              {invoice.second_grand_total && (
+                <p className="flex justify-between text-gray-800">
+                  <span>Grand Total ({invoice.second_currency}):</span>{" "}
+                  <span>
+                    {priceValueWithCurrency(
+                      invoice.second_grand_total,
+                      invoice.second_currency
+                    )}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 

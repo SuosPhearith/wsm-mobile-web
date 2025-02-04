@@ -7,10 +7,10 @@ import { Product } from "../api/type";
 import defaultImage from "../assets/imgaes/logo.png";
 import { priceValue } from "../utils/share";
 import { FiPlusCircle } from "react-icons/fi";
-import { RiDeleteBin5Line } from "react-icons/ri";
 import { useQuery } from "react-query";
 import { calculateTotal } from "../api/cart";
 import Error from "../components/share/Error";
+import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 
 const CartPage = () => {
   useEffect(() => {
@@ -239,7 +239,7 @@ const CartPage = () => {
           onBack={() => navigate(-1)}
           right={
             <div className="flex justify-end">
-              <RiDeleteBin5Line
+              <MdOutlineRemoveShoppingCart
                 size={20}
                 className="text-red-700"
                 onClick={() => handleClearCart()}
@@ -381,8 +381,8 @@ const CartItem = ({
 }) => {
   return (
     <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
-      <div className="flex">
-        <div className="bg-white min-w-16 h-16 me-2 rounded-xl overflow-hidden">
+      <div className="flex gap-2">
+        <div className="bg-white min-h-full w-[96px] me-2 rounded-xl overflow-hidden">
           <img
             src={
               product.thumbnail
@@ -393,9 +393,9 @@ const CartItem = ({
             className="w-full h-full object-contain rounded-xl"
           />
         </div>
-        <div className="flex flex-col justify-around items-start">
-          <div className="text-sm font-semibold">{product.name}</div>
-          <div className="text-base">{priceValue(product.unit_price)}</div>
+        <div className="flex flex-col gap-2 justify-around items-start">
+          <div className="text-sm leading-tight	">{product.name}</div>
+          <div className="text-base font-semibold">{priceValue(product.unit_price)}</div>
         </div>
       </div>
       <div className="flex items-end flex-col">
