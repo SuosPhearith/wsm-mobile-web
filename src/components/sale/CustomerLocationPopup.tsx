@@ -1,21 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dialog, Popup, Radio, Space } from "antd-mobile";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { useMutation } from "react-query";
 import { createCustomerAddress } from "../../api/sale";
 import { Address, Customer } from "../../api/type";
 import { MdError } from "react-icons/md";
 
-// Debounce function to reduce the frequency of map center updates
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Debounce function
 const debounce = (func: (...args: any[]) => void, delay: number) => {
   let timer: NodeJS.Timeout;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (...args: any[]) => {
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
+    timer = setTimeout(() => func(...args), delay);
   };
 };
 
@@ -26,71 +23,68 @@ interface Props {
 }
 
 const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
-  const [selectedLat, setSelectedLat] = useState<number>(11.5564); // Default center (Phnom Penh, Cambodia)
-  const [selectedLng, setSelectedLng] = useState<number>(104.9282);
+  const selectedLatRef = useRef<number>(11.5564); // Default center (Phnom Penh, Cambodia)
+  const selectedLngRef = useRef<number>(104.9282);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [selectedLabel, SetSelectedLabel] = useState<
+  const [selectedLabel, setSelectedLabel] = useState<
     "Warehouse" | "Retail Store" | "Other"
   >("Warehouse");
   const [customer, setCustomer] = useState<Customer>();
   const [note, setNote] = useState("");
 
-  // Create
+  // Create address mutation
   const { mutateAsync } = useMutation({
     mutationFn: createCustomerAddress,
-    onSuccess: () => {},
     onError: (error) => {
       Dialog.alert({
         content: (
-          <>
-            <div className="text-red-500 flex items-center gap-1">
-              <MdError size={24} /> Something weng wrong.
-            </div>
-          </>
+          <div className="text-red-500 flex items-center gap-1">
+            <MdError size={24} /> Something went wrong.
+          </div>
         ),
         confirmText: "Close",
       });
-      console.log(error);
+      console.error(error);
     },
   });
 
-  // Load the Google Maps JavaScript API
+  // Load Google Maps API
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_APP_REACT_APP_GOOGLE_MAPS_API_KEY,
   });
 
-  // Map container style
-  const containerStyle = {
-    width: "100%",
-    height: "300px",
-  };
+  // Memoized center object
+  const center = useMemo(
+    () => ({
+      lat: selectedLatRef.current,
+      lng: selectedLngRef.current,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedLatRef.current, selectedLngRef.current]
+  );
 
-  // Default center position
-  const center = {
-    lat: selectedLat,
-    lng: selectedLng,
-  };
-
-  // Handle map center changes (debounced)
+  // Handle map center change with debouncing
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleCenterChanged = useCallback(
     debounce(async (map: google.maps.Map) => {
       const newCenter = map.getCenter();
-      if (newCenter) {
-        setSelectedLat(newCenter.lat());
-        setSelectedLng(newCenter.lng());
+      if (!newCenter) return;
 
-        // Get address name using Google Maps Geocoder
+      const lat = newCenter.lat();
+      const lng = newCenter.lng();
+
+      // Update only if different
+      if (lat !== selectedLatRef.current || lng !== selectedLngRef.current) {
+        selectedLatRef.current = lat;
+        selectedLngRef.current = lng;
+
+        // Get address using Geocoder
         const geocoder = new google.maps.Geocoder();
-        const latlng = { lat: newCenter.lat(), lng: newCenter.lng() };
+        const latlng = { lat, lng };
 
         geocoder.geocode({ location: latlng }, (results, status) => {
-          if (status === "OK" && results && results[0]) {
-            const address = results[0].formatted_address;
-            setSelectedAddress(address);
-            // You can set the address to state or use it as needed
-          } else {
-            console.error("Geocoder failed due to: ", status);
+          if (status === "OK" && results?.[0]) {
+            setSelectedAddress(results[0].formatted_address);
           }
         });
       }
@@ -98,18 +92,19 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
     []
   );
 
+  // Load customer data from localStorage
   useEffect(() => {
     setCustomer(JSON.parse(localStorage.getItem("selectedCustomer") || "{}"));
   }, [visible]);
 
-  // Get the current location of the user
+  // Get the user's current location
   const handleSelectCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setSelectedLat(latitude);
-          setSelectedLng(longitude);
+          selectedLatRef.current = latitude;
+          selectedLngRef.current = longitude;
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -121,30 +116,25 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
     }
   };
 
-  // Confirm the selected location
+  // Confirm and save the selected location
   const handleConfirm = async () => {
     try {
-      if (!customer?.id) {
-        return;
-      }
+      if (!customer?.id) return;
 
       const data: Address = {
-        lat: selectedLat,
-        lng: selectedLng,
+        lat: selectedLatRef.current,
+        lng: selectedLngRef.current,
         address_name: selectedAddress || "No Provide",
         label: selectedLabel,
         note: note,
         customer_id: customer.id,
       };
-      const res = await mutateAsync(data) as { id: number };
-      if (!res || !res.id) {
-        throw new Error("Invalid response from API");
-      }
-      const updatedData = { ...data, id: res.id };
+      const res = (await mutateAsync(data)) as { id: number };
+      if (!res?.id) throw new Error("Invalid response from API");
 
-      setLocation(updatedData);
+      setLocation({ ...data, id: res.id });
       setNote("");
-      SetSelectedLabel("Warehouse");
+      setSelectedLabel("Warehouse");
       setSelectedAddress("");
       setCustomer(undefined);
       setVisible(false);
@@ -166,10 +156,7 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold">Select Location</h3>
-          <button
-            onClick={() => setVisible(false)}
-            className="text-red-500 font-semibold"
-          >
+          <button onClick={() => setVisible(false)} className="text-red-500 font-semibold">
             Close
           </button>
         </div>
@@ -178,20 +165,14 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
         {isLoaded ? (
           <div className="relative">
             <GoogleMap
-              mapContainerStyle={containerStyle}
+              mapContainerStyle={{ width: "100%", height: "300px" }}
               center={center}
               zoom={15}
               onLoad={(map) => {
-                map.addListener("center_changed", () =>
-                  handleCenterChanged(map)
-                );
+                map.addListener("center_changed", () => handleCenterChanged(map));
               }}
-              options={{
-                gestureHandling: "greedy",
-                disableDefaultUI: true,
-              }}
+              options={{ gestureHandling: "greedy", disableDefaultUI: true }}
             />
-            {/* Fixed Pin at the Center */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-full">
               <img src="/pin.png" alt="Map Pin" className="w-6 h-10" />
             </div>
@@ -200,79 +181,36 @@ const CustomerLocationPopup = ({ visible, setVisible, setLocation }: Props) => {
           <div>Loading map...</div>
         )}
 
-        {/* Display Selected Coordinates */}
+        {/* Location Info */}
         <div className="bg-gray-100 p-3 rounded-lg mt-4">
           <div className="text-sm">
-            <strong>Latitude:</strong> {selectedLat.toFixed(6)}
-            <strong className="ms-3">Longitude:</strong>{" "}
-            {selectedLng.toFixed(6)}
+            <strong>Latitude:</strong> {selectedLatRef.current.toFixed(6)}
+            <strong className="ms-3">Longitude:</strong> {selectedLngRef.current.toFixed(6)}
           </div>
           <div className="text-sm mb-4 truncate">
             <strong>Address:</strong> {selectedAddress}
           </div>
-          <Radio.Group
-            value={selectedLabel}
-            onChange={(val) =>
-              SetSelectedLabel(val as "Warehouse" | "Retail Store" | "Other")
-            }
-          >
+          <Radio.Group value={selectedLabel} onChange={(val) => setSelectedLabel(val as any)}>
             <Space direction="horizontal">
-              <Radio
-                style={{
-                  "--icon-size": "18px",
-                  "--font-size": "14px",
-                  "--gap": "6px",
-                }}
-                value="Warehouse"
-              >
-                Warehouse
-              </Radio>
-              <Radio
-                style={{
-                  "--icon-size": "18px",
-                  "--font-size": "14px",
-                  "--gap": "6px",
-                }}
-                value="Retail Store"
-              >
-                Retail Store
-              </Radio>
-              <Radio
-                style={{
-                  "--icon-size": "18px",
-                  "--font-size": "14px",
-                  "--gap": "6px",
-                }}
-                value="Other"
-              >
-                Other
-              </Radio>
+              <Radio value="Warehouse">Warehouse</Radio>
+              <Radio value="Retail Store">Retail Store</Radio>
+              <Radio value="Other">Other</Radio>
             </Space>
           </Radio.Group>
-          <div className="mt-4">
-            <input
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none placeholder-gray-400"
-              placeholder="Enter note"
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </div>
+          <input
+            className="w-full p-2 border border-gray-300 rounded-md mt-4"
+            placeholder="Enter note"
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </div>
 
-        {/* Select Current Location Button */}
-        <button
-          onClick={handleSelectCurrentLocation}
-          className="bg-blue-500 text-white w-full py-2 rounded-lg font-semibold mt-4"
-        >
+        {/* Buttons */}
+        <button onClick={handleSelectCurrentLocation} className="bg-blue-500 text-white w-full py-2 rounded-lg font-semibold mt-4">
           Select Current Location
         </button>
-
-        {/* Confirm Button */}
-        <button
-          onClick={handleConfirm}
-          className="bg-primary text-white w-full py-2 rounded-lg font-semibold mt-4"
-        >
+        <button onClick={handleConfirm} className="bg-primary text-white w-full py-2 rounded-lg font-semibold mt-4">
           Confirm Location
         </button>
       </div>

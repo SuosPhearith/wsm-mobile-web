@@ -39,9 +39,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen bg-blue-300">
-      <img src={oflImage} alt="logo" className="w-full p-10 h-1/2" />
-      <div className="p-8 rounded-t-2xl bg-white shadow w-full h-1/2">
+    <div className="h-screen flex flex-col justify-between gap-5">
+      <div className="p-4 bg-white h-1/3 flex flex-col justify-center items-center rounded-b-[20px] border-b-2 border-primary">
+        <img
+          src={oflImage}
+          alt="logo"
+          className="w-full p-5 h-1/2 rounded-lg"
+        />
+      </div>
+
+      <div className="p-8 rounded-t-2xl bg-white shadow border-t-2 border-primary w-full h-2/3">
         <h2 className="text-gray-800 text-center text-2xl font-bold">
           Sign in to your account
         </h2>
@@ -59,7 +66,7 @@ const LoginPage = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-2xl outline-blue-600"
                 placeholder="Enter user name"
               />
               <FaUser className="w-4 h-4 absolute right-4 cursor-pointer text-slate-300" />
@@ -77,7 +84,7 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-2xl outline-blue-600"
                 placeholder="Enter password"
               />
               <FaLock className="w-4 h-4 absolute right-4 cursor-pointer text-slate-300" />
@@ -87,7 +94,7 @@ const LoginPage = () => {
           <div className="pb-10">
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
+              className="flex w-full justify-center rounded-2xl bg-blue-500 px-3 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
             >
               {lLogin ? "..." : "Sign in"}
             </button>

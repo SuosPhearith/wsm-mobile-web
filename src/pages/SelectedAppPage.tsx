@@ -78,7 +78,11 @@ const SelectedAppPage = () => {
       if (selectedApp.currency !== currency) {
         Dialog.confirm({
           title: "Switch Confirmation",
-          content: `It will remove current cart and hold data?`,
+          content: (
+            <div className="text-center">
+              It will remove current cart and hold data?
+            </div>
+          ),
           confirmText: "Switch",
           cancelText: "Cancel",
           onConfirm: () => {

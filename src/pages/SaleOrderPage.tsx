@@ -150,8 +150,8 @@ const SaleOrderPage = () => {
       !location
     ) {
       Modal.alert({
-        title: <>{t("saleOrder.filedRequire")}</>,
-        content: <>{t("saleOrder.selectFieldsError")}</>,
+        title: <><div className="text-yellow-600">{t("saleOrder.filedRequire")}</div></>,
+        content: <><div className="text-center">{t("saleOrder.selectFieldsError")}</div></>,
         confirmText: "OK",
       });
       return;
@@ -267,8 +267,8 @@ const SaleOrderPage = () => {
   const handleOpenLocation = () => {
     if (!localStorage.getItem("selectedCustomer")) {
       Modal.alert({
-        title: "Field Require.",
-        content: <>{t("saleOrder.selectCustomerFirst")}</>,
+        title: <><div className="text-yellow-600">{t("saleOrder.filedRequire")}</div></>,
+        content: <><div className="text-center">{t("saleOrder.selectCustomerFirst")}</div></>,
         confirmText: <>{t("saleOrder.ok")}</>,
       });
       return;
