@@ -150,8 +150,18 @@ const SaleOrderPage = () => {
       !location
     ) {
       Modal.alert({
-        title: <><div className="text-yellow-600">{t("saleOrder.filedRequire")}</div></>,
-        content: <><div className="text-center">{t("saleOrder.selectFieldsError")}</div></>,
+        title: (
+          <>
+            <div className="text-yellow-600">{t("saleOrder.filedRequire")}</div>
+          </>
+        ),
+        content: (
+          <>
+            <div className="text-center">
+              {t("saleOrder.selectFieldsError")}
+            </div>
+          </>
+        ),
         confirmText: "OK",
       });
       return;
@@ -160,7 +170,6 @@ const SaleOrderPage = () => {
     // Show confirmation modal
     Dialog.confirm({
       title: t("saleInvoice.confirmOrder"),
-      content: t("saleInvoice.confirmOrderMessage"),
       confirmText: "Ok",
       cancelText: "Cancel",
       onConfirm: () => {
@@ -252,7 +261,7 @@ const SaleOrderPage = () => {
           qty: item.qty,
         })),
         pos_app_id: window.localStorage.getItem("app") || "",
-        customer_id: selectedCustomer?.id
+        customer_id: selectedCustomer?.id,
       }),
     { enabled: debouncedCartItems.length > 0 }
   );
@@ -267,8 +276,18 @@ const SaleOrderPage = () => {
   const handleOpenLocation = () => {
     if (!localStorage.getItem("selectedCustomer")) {
       Modal.alert({
-        title: <><div className="text-yellow-600">{t("saleOrder.filedRequire")}</div></>,
-        content: <><div className="text-center">{t("saleOrder.selectCustomerFirst")}</div></>,
+        title: (
+          <>
+            <div className="text-yellow-600">{t("saleOrder.filedRequire")}</div>
+          </>
+        ),
+        content: (
+          <>
+            <div className="text-center">
+              {t("saleOrder.selectCustomerFirst")}
+            </div>
+          </>
+        ),
         confirmText: <>{t("saleOrder.ok")}</>,
       });
       return;
@@ -506,7 +525,9 @@ const SaleOrderPage = () => {
             </div>
             {total?.second_grand_total && (
               <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
-                <div className="text-base">Grand Total ({total?.second_currency}):</div>
+                <div className="text-base">
+                  Grand Total ({total?.second_currency}):
+                </div>
                 <div className="text-base">
                   {lTotal ? (
                     <div>...</div>

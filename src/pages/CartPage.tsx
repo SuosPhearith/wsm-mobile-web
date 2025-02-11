@@ -380,9 +380,9 @@ const CartItem = ({
   onRemove: (id: number) => void;
 }) => {
   return (
-    <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl">
+    <div className="flex bg-white w-full items-center justify-between p-2 rounded-xl h-fit">
       <div className="flex gap-2">
-        <div className="bg-white min-h-full w-[96px] me-2 rounded-xl overflow-hidden">
+        <div className="bg-white min-h-full max-w-[54px] me-2 rounded-xl overflow-hidden">
           <img
             src={
               product.thumbnail
@@ -395,12 +395,12 @@ const CartItem = ({
         </div>
         <div className="flex flex-col gap-2 justify-around items-start">
           <div className="text-sm leading-tight	">{product.name}</div>
-          <div className="text-base font-semibold">{priceValue(product.unit_price)}</div>
+          <div className="text-sm font-semibold">{priceValue(product.unit_price * qty)}</div>
         </div>
       </div>
       <div className="flex items-end flex-col">
         <div className="flex items-start">
-          <div>{priceValue(product.unit_price * qty)}</div>
+          {/* <div>{priceValue(product.unit_price * qty)}</div> */}
           <button
             onClick={() => onRemove(product.id)}
             className="text-red-500 hover:text-red-700 font-semibold mb-5 ms-2"

@@ -8,7 +8,7 @@ import defaultAvatar from "../assets/imgaes/profile2.jpg";
 import { useMutation, useQuery } from "react-query";
 import { createSaleInvoice } from "../api/sale";
 import { MdError } from "react-icons/md";
-import { FaCheckCircle, FaStore, FaTruck } from "react-icons/fa";
+import { FaCheckCircle, FaLessThan, FaStore, FaTruck } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { LuBox } from "react-icons/lu";
 import { FiDollarSign, FiMapPin, FiTag } from "react-icons/fi";
@@ -97,9 +97,53 @@ const SaleInvoicePage = () => {
       });
       return;
     }
+    // Check stock warning
+    const warningProducts: { product: Product; qty: number }[] = [];
+
+    // Convert cart to JSON
+    const cartJson: { product: Product; qty: number }[] = JSON.parse(cart);
+
+    // Loop check
+    cartJson.forEach((cart) => {
+      const totalStock = cart.product.inventories.reduce(
+        (sum, inv) => sum + inv.quantity,
+        0
+      );
+
+      if (cart.qty > totalStock) {
+        warningProducts.push(cart);
+      }
+    });
+    //====================
     Dialog.confirm({
       title: t("saleInvoice.confirmOrder"),
-      content: t("saleInvoice.confirmOrderMessage"),
+      content: (
+        <div className="max-h-[400px]">
+          {warningProducts.length > 0 ? (
+            warningProducts.map((product) => (
+              <div
+                key={product.product.id}
+                className="bg-white border border-yellow-500 p-2 m-2 text-xs rounded-lg flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col">
+                  <p className="text-gray-800">{product.product.name}</p>
+                  <span className="text-xs text-blue-600 flex items-center">
+                    Stock:{" "}
+                    {product.product.inventories.reduce(
+                      (sum, inv) => sum + inv.quantity,
+                      0
+                    )}
+                    <FaLessThan size={10} className="mx-2"/>
+                    <span className="text-red-600">QTY: {product.qty}</span>
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 italic">No stock warnings.</p>
+          )}
+        </div>
+      ),
       confirmText: "Ok",
       cancelText: "Cancel",
       onConfirm: () => {
@@ -212,7 +256,7 @@ const SaleInvoicePage = () => {
           qty: item.qty,
         })),
         pos_app_id: window.localStorage.getItem("app") || "",
-        customer_id: selectedCustomer?.id
+        customer_id: selectedCustomer?.id,
       }),
     { enabled: debouncedCartItems.length > 0 }
   );
@@ -385,7 +429,7 @@ const SaleInvoicePage = () => {
         </div>
       </div>
       <div className="fixed bottom-0 w-full p-4 bg-white border-t-[1px] border-primary">
-      <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
+        <div className="flex p-4 pt-0 rounded-xl justify-between items-center">
           <div className="text-lg font-semibold">Grand Total</div>
           <div className="text-lg font-bold">
             {lTotal ? (

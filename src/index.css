@@ -43,3 +43,13 @@
 .custom-stepper .adm-input-element {
     font-size: 16px;
 }
+
+/* :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+
+/* Override Popup animation */
+/* .adm-popup {
+    transition: none !important;
+  }
+  .adm-popup .adm-popup-content {
+    transition: none !important;
+  } */

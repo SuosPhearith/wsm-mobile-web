@@ -20,7 +20,8 @@ export const getProduct = async (
   page: string,
   perPage: string,
   category_id: string,
-  keyword: string
+  keyword: string,
+  stock_level: "empty" | "low" | "current" | ""
 ): Promise<PaginatedResponse<Product>> => {
   const appId = localStorage.getItem("app");
   const appName = localStorage.getItem("app-name");
@@ -37,6 +38,9 @@ export const getProduct = async (
   }
   if (keyword) {
     params.append("keyword", keyword);
+  }
+  if (stock_level) {
+    params.append("stock_level", stock_level);
   }
   const response = await api<PaginatedResponse<Product>>(
     "GET",
