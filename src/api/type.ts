@@ -187,3 +187,31 @@ export interface SaleInvoiceHistory {
   order_items_count: number;
   customer: Customer;
 }
+
+// Mission Interface
+interface Mission {
+  id: number;
+  title: string;
+  title_kh: string | null;
+  description: string | null;
+  description_kh: string | null;
+  mission_date: string; // ISO date string
+  mission_start: string | null;
+  mission_end: string | null;
+  user_id: number;
+  ref_class: string;
+  ref_id: string;
+  type: string;
+  status: string;
+  closed_date: string | null;
+  wholesale_id: number;
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
+
+// Main Response Interface
+export interface MissionsResponse {
+  active_missions: Mission[];
+  processing_missions: Mission[];
+  completed_mission: Mission[];
+}

@@ -110,7 +110,11 @@ const SaleInvoicePage = () => {
         0
       );
 
-      if (cart.qty > totalStock) {
+      if (
+        cart.qty > totalStock &&
+        cart.product.uom.name != "Set" &&
+        cart.product.uom.name != "ឈុត"
+      ) {
         warningProducts.push(cart);
       }
     });
@@ -133,7 +137,7 @@ const SaleInvoicePage = () => {
                       (sum, inv) => sum + inv.quantity,
                       0
                     )}
-                    <FaLessThan size={10} className="mx-2"/>
+                    <FaLessThan size={10} className="mx-2" />
                     <span className="text-red-600">QTY: {product.qty}</span>
                   </span>
                 </div>

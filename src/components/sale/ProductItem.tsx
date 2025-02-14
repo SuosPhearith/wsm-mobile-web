@@ -47,22 +47,26 @@ const ProductItem = ({ item }: Props) => {
                 : ""
             }`}
           >
-            {stock}
+            {item.uom.name !== "Set" && item.uom.name != "ឈុត"
+              ? stock
+              : "Combo"}
           </span>
         </div>
         <div
           className={`flex justify-center items-center ${
-            stock == 0
+            stock <= 0
               ? "text-red-700 bg-red-200"
               : stock <= stockAlert
               ? "text-yellow-600 bg-yellow-200"
               : ""
           } rounded-lg px-2`}
         >
-          {stock == 0
-            ? "Out of Stock"
-            : stock <= stockAlert
-            ? "Low Stock"
+          {item.uom.name !== "Set" && item.uom.name != "ឈុត"
+            ? stock <= 0
+              ? "Out of Stock"
+              : stock <= stockAlert
+              ? "Low Stock"
+              : ""
             : ""}
         </div>
       </div>
