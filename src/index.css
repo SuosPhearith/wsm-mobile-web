@@ -10,7 +10,7 @@
 }
 
 * {
-    font-family: 'kantumruy', sans-serif;
+    font-family: 'kantumruy', sans-serif !important;
 }
 
 /* for safe area */

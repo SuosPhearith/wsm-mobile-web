@@ -21,8 +21,12 @@ export interface OrderRequest {
   pos_app_id: string;
   customer_id?: number;
 }
+export interface OrderWebRequest {
+  items: OrderItem[];
+  pos_app_id: string;
+}
 
-interface OrderTotal {
+export interface OrderTotal {
   subtotal: number;
   discount: number;
   grand_total: number;

@@ -23,7 +23,7 @@ const Header = () => {
 
   // Toggle language between Khmer (kh) and English (en)
   const toggleLanguage = () => {
-    const newLang = i18n.language === "en" ? "kh" : "en";
+    const newLang = i18n.language === "kh" ? "en" : "kh";
     i18n.changeLanguage(newLang);
   };
 

@@ -23,6 +23,9 @@ import SaleInvoiceHistory from "./pages/SaleInvoiceHistory";
 import SaleInvoiceHistoryDetail from "./pages/SaleInvoiceHistoryDetail";
 import SaleOrderHistory from "./pages/SaleOrderHistory";
 import SaleOrderHistoryDetail from "./pages/SaleOrderHistoryDetail";
+import WebOrderPage from "./pages/WebOrderPage";
+import WebOrderCartPage from "./pages/WebOrderCartPage";
+import WebOrderCommitPage from "./pages/WebOrderCommitPage";
 
 function App() {
   return (
@@ -65,6 +68,10 @@ function App() {
           <Route path="/sale-invoice-history/:id" element={<SaleInvoiceHistoryDetail />} />
           <Route path="/sale-order-history" element={<SaleOrderHistory />} />
           <Route path="/sale-order-history/:id" element={<SaleOrderHistoryDetail />} />
+          {/* Web other no auth require */}
+          <Route path="/web/order/:id/web-order" element={<WebOrderPage />} />
+          <Route path="/web/order/:id/cart" element={<WebOrderCartPage />} />
+          <Route path="/web/order/:id/commit" element={<WebOrderCommitPage />} />
         </Route>
 
         {/* Public Page */}
