@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DotLoading, NavBar, Popup, Stepper, Toast } from "antd-mobile";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Product } from "../api/type";
 import defaultImage from "../assets/imgaes/logo.png";
@@ -24,6 +24,7 @@ const WebOrderCartPage = () => {
   const [holdData, setHoleData] = useState<{ name: string }[]>(
     JSON.parse(window.localStorage.getItem("hold") || "[]") || []
   );
+  const {id} = useParams();
 
   useEffect(() => {
     const storedCart = JSON.parse(window.localStorage.getItem("cart") || "[]");
@@ -71,8 +72,7 @@ const WebOrderCartPage = () => {
           product_id: item.product.id,
           qty: item.qty === 0 ? 1 : item.qty,
         })),
-        // changeMe
-        pos_app_id: window.localStorage.getItem("app") || "",
+        posApp: id || "",
       }),
     { enabled: debouncedCartItems.length > 0 }
   );
@@ -306,7 +306,7 @@ const WebOrderCartPage = () => {
         <div className="w-full flex gap-4">
           <button
             disabled={cartValue() === 0}
-            onClick={() => navigate("/web/order/:id/commit")}
+            onClick={() => navigate(`/web/order/${id}/commit`)}
             className={`p-3 w-full rounded-xl text-lg text-white ${
               cartValue() === 0
                 ? "bg-gray-400 cursor-not-allowed"

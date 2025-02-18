@@ -13,7 +13,6 @@ import CustomerPage from "./pages/CustomerPage";
 import PrivateRoute from "./components/protect/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
-import AuthCheck from "./components/share/AuthCheck";
 import NotFoundPage from "./pages/NoteFoundPage";
 import SaleInvoiceSuccessPage from "./pages/SaleInvoiceSuccessPage";
 import SaleOrderSuccessPage from "./pages/SaleOrderSuccessPage";
@@ -26,11 +25,11 @@ import SaleOrderHistoryDetail from "./pages/SaleOrderHistoryDetail";
 import WebOrderPage from "./pages/WebOrderPage";
 import WebOrderCartPage from "./pages/WebOrderCartPage";
 import WebOrderCommitPage from "./pages/WebOrderCommitPage";
+import WebOrderInvoicePage from "./pages/WebOrderInvoicePage";
 
 function App() {
   return (
     <Router>
-      <AuthCheck />
       <Routes>
         {/* Main Layout */}
         <Route
@@ -64,19 +63,35 @@ function App() {
           <Route path="/ordered-order" element={<SaleOrderSuccessPage />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="/seleted-app" element={<SelectedAppPage />} />
-          <Route path="/sale-invoice-history" element={<SaleInvoiceHistory />} />
-          <Route path="/sale-invoice-history/:id" element={<SaleInvoiceHistoryDetail />} />
+          <Route
+            path="/sale-invoice-history"
+            element={<SaleInvoiceHistory />}
+          />
+          <Route
+            path="/sale-invoice-history/:id"
+            element={<SaleInvoiceHistoryDetail />}
+          />
           <Route path="/sale-order-history" element={<SaleOrderHistory />} />
-          <Route path="/sale-order-history/:id" element={<SaleOrderHistoryDetail />} />
-          {/* Web other no auth require */}
-          <Route path="/web/order/:id/web-order" element={<WebOrderPage />} />
-          <Route path="/web/order/:id/cart" element={<WebOrderCartPage />} />
-          <Route path="/web/order/:id/commit" element={<WebOrderCommitPage />} />
+          <Route
+            path="/sale-order-history/:id"
+            element={<SaleOrderHistoryDetail />}
+          />
         </Route>
 
         {/* Public Page */}
         <Route element={<NoLayout />}>
           <Route path="/login" element={<LoginPage />} />
+          {/* Web other no auth require */}
+          <Route path="/web/order/:id/web-order" element={<WebOrderPage />} />
+          <Route path="/web/order/:id/cart" element={<WebOrderCartPage />} />
+          <Route
+            path="/web/order/:id/commit"
+            element={<WebOrderCommitPage />}
+          />
+          <Route
+            path="/web/order/:id/invoice"
+            element={<WebOrderInvoicePage />}
+          />
         </Route>
 
         {/* Not Found Page */}

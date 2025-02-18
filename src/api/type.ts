@@ -142,11 +142,11 @@ export interface SaleOrderInterface {
 }
 export interface SaleOrderWebInterface {
   items: SaleOrderItem[];
-  delivery_date: string;
-  time_slot: string;
+  phone_number: string;
+  name: string;
   address : string;
   remark?: string;
-  pos_app_id: string;
+  posApp: string;
 }
 export interface SaleInvoiceInterface {
   items: SaleOrderItem[];

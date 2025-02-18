@@ -23,7 +23,7 @@ export interface OrderRequest {
 }
 export interface OrderWebRequest {
   items: OrderItem[];
-  pos_app_id: string;
+  posApp: string;
 }
 
 export interface OrderTotal {

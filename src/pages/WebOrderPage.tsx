@@ -9,11 +9,10 @@ import {
   Popup,
   Stepper,
 } from "antd-mobile";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "react-query";
 import Error from "../components/share/Error";
-import { getCategory, getProduct } from "../api/order";
-import { Product } from "../api/type";
+import { getCategory, getProduct, Product } from "../api/order";
 import { BsCart2 } from "react-icons/bs";
 import defaultImage from "../assets/imgaes/logo.png";
 import { priceValue } from "../utils/share";
@@ -26,12 +25,13 @@ const WebOrderPage = () => {
   const [qty, setQty] = useState<number>(1);
   const [cId, setCId] = useState("");
   const navigate = useNavigate();
+  const { id } = useParams();
   // Fetch category
   const {
     data: dCategory,
     isLoading: lCategory,
     isError: eCategory,
-  } = useQuery("categories", getCategory);
+  } = useQuery("categories", () => getCategory(id || ""));
   // Infinite product fetching with useInfiniteQuery
   const {
     data: dProduct,
@@ -42,7 +42,7 @@ const WebOrderPage = () => {
     isError: eProduct,
   } = useInfiniteQuery(
     ["products", cId, searchKey],
-    ({ pageParam = 1 }) => getProduct(pageParam, "20", cId, searchKey),
+    ({ pageParam = 1 }) => getProduct(pageParam, "20", cId, searchKey, id || ""),
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.next_page_url) {
@@ -144,7 +144,7 @@ const WebOrderPage = () => {
   }, [searchInput, debouncedSearch]);
   // Loading and error handling
   if (lCategory) return <p></p>;
-  if (eCategory || eProduct) return <Error />;
+  if (eCategory || eProduct || !id) return <Error />;
   return (
     <div>
       <div className="p-4">
@@ -232,7 +232,7 @@ const WebOrderPage = () => {
         )}
 
         <FloatingBubble
-          onClick={() => navigate("/web/order/:id/cart")}
+          onClick={() => navigate(`/web/order/${id}/cart`)}
           axis="x"
           magnetic="x"
           style={{

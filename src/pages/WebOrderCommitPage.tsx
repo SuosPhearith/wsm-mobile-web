@@ -1,30 +1,17 @@
 import { useState, useEffect } from "react";
-import { Dialog, Modal, NavBar, Popup, TextArea, Toast } from "antd-mobile";
-import {
-  CloseCircleOutline,
-  EditFill,
-  FileOutline,
-  UserContactOutline,
-} from "antd-mobile-icons";
-import { useNavigate } from "react-router-dom";
-import { formatDate, priceValue, priceValueWithCurrency } from "../utils/share";
-import {
-  BookingDateInterface,
-  Product,
-  SaleOrderWebInterface,
-  TimeSlotInterface,
-} from "../api/type";
+import { Dialog, Modal, NavBar, TextArea, Toast } from "antd-mobile";
+import { FileOutline, UserContactOutline } from "antd-mobile-icons";
+import { useNavigate, useParams } from "react-router-dom";
+import { priceValue, priceValueWithCurrency } from "../utils/share";
+import { SaleOrderWebInterface } from "../api/type";
 import { useMutation, useQuery } from "react-query";
-import { getDeliveryDateRange } from "../api/sale";
 import Error from "../components/share/Error";
-import { MdAccessTime, MdError } from "react-icons/md";
+import { MdError } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
-import { calculateTotal } from "../api/cart";
 import { LuMapPin, LuUser } from "react-icons/lu";
 import { FiPhone } from "react-icons/fi";
-import { BsCalendarDate } from "react-icons/bs";
-import { commitOrder, FormWebOrder } from "../api/order";
+import { calculateTotal, commitOrder, FormWebOrder, Product } from "../api/order";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 const WebOrderCommitPage = () => {
@@ -37,58 +24,23 @@ const WebOrderCommitPage = () => {
     { product: Product; qty: number }[]
   >([]);
   const [note, setNote] = useState("");
-  const [visible2, setVisible2] = useState<boolean>(false);
-  const [visible3, setVisible3] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] =
-    useState<BookingDateInterface | null>();
-  const [selectedTimeSlot, setSelectedTimeSlot] =
-    useState<TimeSlotInterface | null>();
   const navigate = useNavigate();
+  const {id} = useParams();
 
   // form data
   const {
     register,
     handleSubmit,
-    setError,
-    setValue,
     trigger,
     formState: { errors },
   } = useForm<FormWebOrder>();
-
-  // Register hidden fields for delivery_date and time_slot
-  useEffect(() => {
-    register("delivery_date", { required: "ត្រូវជ្រើសរើសថ្ងៃដឹកជញ្ជូន" });
-    register("time_slot", { required: "ត្រូវជ្រើសរើសម៉ោងដឹកជញ្ជូន" });
-  }, [register]);
 
   const onSubmit: SubmitHandler<FormWebOrder> = async (data) => {
     const cart = window.localStorage.getItem("cart");
     // Manually trigger validations
     const isValid = await trigger();
     if (!isValid) return;
-  
-    if (!selectedDate) {
-      setError("delivery_date", {
-        type: "manual",
-        message: "ត្រូវជ្រើសរើសថ្ងៃដឹកជញ្ជូន",
-      });
-      return;
-    }
-  
-    if (!selectedTimeSlot) {
-      setError("time_slot", {
-        type: "manual",
-        message: "ត្រូវជ្រើសរើសម៉ោងដឹកជញ្ជូន",
-      });
-      return;
-    }
-
-    if (
-      !cart ||
-      JSON.parse(cart).length === 0 ||
-      !data.time_slot ||
-      !data.delivery_date
-    ) {
+    if (!cart || JSON.parse(cart).length === 0) {
       Modal.alert({
         title: (
           <>
@@ -97,19 +49,17 @@ const WebOrderCommitPage = () => {
         ),
         content: (
           <>
-            <div className="text-center">
-            សូមបញ្ចូលព័ត៌មានអោយគ្រប់
-            </div>
+            <div className="text-center">សូមបញ្ចូលព័ត៌មានអោយគ្រប់</div>
           </>
         ),
         confirmText: "បិទ",
       });
       return;
     }
-  
+
     // Log final form data
     Dialog.confirm({
-      title: 'សូមបញ្ចាក់ការកុម្ម៉ង់',
+      title: "សូមបញ្ចាក់ការកុម្ម៉ង់",
       confirmText: "កុម្ម៉ង់",
       cancelText: "ទេ",
       onConfirm: () => {
@@ -118,44 +68,32 @@ const WebOrderCommitPage = () => {
           items: cartData.map((item) => ({
             product_id: item.product.id,
             qty: item.qty,
-            note: "Nothing",
           })),
-          pos_app_id: localStorage.getItem("app") || "",
-          delivery_date: data.delivery_date,
+          phone_number: data.phone,
+          name: data.name,
           address: data.address || "",
-          time_slot: data.time_slot,
           remark: note,
+          posApp: id || '',
         };
 
-        console.log(orderData);
-        navigate('/')
-
-        // mOrder(orderData);
+        mOrder(orderData);
       },
     });
   };
-
-  // get getDeliveryDateRange
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["dateRanges"],
-    queryFn: getDeliveryDateRange,
-  });
 
   // make order
   const { mutate: mOrder, isLoading: lOrder } = useMutation({
     mutationFn: commitOrder,
     onSuccess: (data) => {
-      window.localStorage.setItem("ordered", JSON.stringify(data) || "{}");
-      window.localStorage.removeItem("selectedCustomer");
+      window.localStorage.setItem('quickOrdered', JSON.stringify(data));
       window.localStorage.removeItem("cart");
-      // changeMe
-      navigate("/web/order/:id/web-order");
+      navigate(`/web/order/${id}/invoice`);
       Toast.show({
         content: (
           <>
             <div className="flex justify-center items-start gap-2 text-green-500">
               <FaCheckCircle size={22} />
-              បញ្ជាការកកុម្ម៉ង់ដោយជោគជ័យ
+              កុម្ម៉ង់ដោយជោគជ័យ
             </div>
           </>
         ),
@@ -188,21 +126,6 @@ const WebOrderCommitPage = () => {
     localStorage.getItem("cart") || "[]"
   );
 
-  // Handle select data
-  const handleSetDate = (item: BookingDateInterface) => {
-    setSelectedDate(item);
-    setValue("delivery_date", item.date);
-    trigger("delivery_date");
-    setVisible2(false);
-  };
-  // Handle select time slot
-  const handleSetTime = (item: TimeSlotInterface) => {
-    setSelectedTimeSlot(item);
-    setValue("time_slot", item.slot);
-    trigger("time_slot");
-    setVisible3(false);
-  };
-
   const [debouncedCartItems, setDebouncedCartItems] =
     useState(displayedCartItems);
 
@@ -227,15 +150,12 @@ const WebOrderCommitPage = () => {
           qty: item.qty,
         })),
         // chnageMe
-        pos_app_id: window.localStorage.getItem("app") || "",
+        posApp: id || "",
       }),
     { enabled: debouncedCartItems.length > 0 }
   );
 
-  if (isLoading) {
-    return <div></div>;
-  }
-  if (isError || eTotal) {
+  if (eTotal) {
     return <Error />;
   }
 
@@ -293,79 +213,12 @@ const WebOrderCommitPage = () => {
             <div className="flex items-center w-full bg-white mt-2 px-3 py-2 rounded-lg">
               <LuMapPin size={20} />
               <input
+              {...register("address", { maxLength: 100 })}
                 type="text"
                 placeholder="បញ្ចូលទីតាំង"
                 className="border-0 rounded-lg px-3 text-lg focus:outline-none"
               />
             </div>
-
-            {!selectedDate ? (
-              <div
-                onClick={() => setVisible2(true)}
-                className={`flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg ${
-                  errors.delivery_date && "border border-1 border-red-400"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <BsCalendarDate size={18} />
-                  <div className="text-base text-slate-400">
-                    ជ្រើសរើសថ្ងៃដឹកជញ្ជូន
-                  </div>
-                </div>
-                <div>
-                  <EditFill fontSize={18} />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <BsCalendarDate size={18} />
-                  <div className="text-base">
-                    {formatDate(selectedDate.date)}
-                  </div>
-                </div>
-                <div>
-                  <CloseCircleOutline
-                    onClick={() => setSelectedDate(null)}
-                    className="text-red-500"
-                    fontSize={24}
-                  />
-                </div>
-              </div>
-            )}
-            {!selectedTimeSlot ? (
-              <div
-                onClick={() => setVisible3(true)}
-                className={`flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg ${
-                  errors.time_slot && "border border-1 border-red-400"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <MdAccessTime size={20} />
-                  <div className="text-base text-slate-400">
-                    ជ្រើសរើសម៉ោងដឹកជញ្ជូន
-                  </div>
-                </div>
-
-                <div>
-                  <EditFill fontSize={18} />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center w-full bg-white mt-2 justify-between p-3 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <MdAccessTime size={20} />
-                  <div className="text-base">{selectedTimeSlot.slot}</div>
-                </div>
-                <div>
-                  <CloseCircleOutline
-                    onClick={() => setSelectedTimeSlot(null)}
-                    className="text-red-500"
-                    fontSize={24}
-                  />
-                </div>
-              </div>
-            )}
             <div className="bg-white rounded-lg mt-2 p-3">
               <TextArea
                 value={note}
@@ -475,74 +328,6 @@ const WebOrderCommitPage = () => {
           </div>
         </div>
       </form>
-      <Popup
-        visible={visible2}
-        onMaskClick={() => setVisible2(false)}
-        bodyStyle={{
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
-          minHeight: "40vh",
-        }}
-      >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold">ជ្រើសរើសថ្ងៃដឹកជញ្ជូន</h3>
-            <button
-              onClick={() => setVisible2(false)}
-              className="text-red-500 font-semibold"
-            >
-              <CloseCircleOutline className="text-red-500" fontSize={24} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {data?.map((item, index) => (
-              <div
-                onClick={() => handleSetDate(item)}
-                key={index}
-                className="bg-gray-100 p-2 rounded-lg text-center text-base font-base"
-              >
-                {formatDate(item.date)}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Popup>
-      <Popup
-        visible={visible3}
-        onMaskClick={() => setVisible3(false)}
-        bodyStyle={{
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
-          minHeight: "40vh",
-        }}
-      >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold">ជ្រើសរើសម៉ោងដឹកជញ្ជូន</h3>
-            <button
-              onClick={() => setVisible3(false)}
-              className="text-red-500 font-semibold"
-            >
-              <CloseCircleOutline className="text-red-500" fontSize={24} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {selectedDate?.time_slot
-              .filter((slot) => slot.enabled)
-              .map((slot, index) => (
-                <div
-                  key={index}
-                  className="bg-blue-100 p-4 rounded-lg text-center text-lg font-medium cursor-pointer hover:bg-blue-200"
-                  onClick={() => handleSetTime(slot)}
-                >
-                  {slot.slot}
-                </div>
-              ))}
-          </div>
-        </div>
-      </Popup>
     </div>
   );
 };

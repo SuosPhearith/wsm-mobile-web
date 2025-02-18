@@ -1,6 +1,6 @@
-import { Product } from "../../api/type";
 import { priceValue } from "../../utils/share";
 import defaultImage from "../../assets/imgaes/logo.png";
+import { Product } from "../../api/order";
 
 interface Props {
   item: Product;
